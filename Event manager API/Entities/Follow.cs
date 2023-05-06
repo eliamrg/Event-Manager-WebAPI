@@ -9,11 +9,11 @@
         //RELATIONSHIPS
 
         //------User
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         public User User { get; set; }
         
-        //------User
-        public int AdminId { get; set; }
+        //------User Admin
+        public int? AdminId { get; set; }
         public User Admin { get; set; }
 
 

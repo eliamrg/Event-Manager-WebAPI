@@ -2,6 +2,8 @@
 {
     public class Favourite
     {
+        private int eventId;
+
         public int Id { get; set; }
         public DateTime createdAt { get; set; }
 
@@ -13,7 +15,7 @@
         public User User { get; set; }
 
         //------Event
-        public int EventId { get; set; }
+        public int EventId { get => eventId; set => eventId = value; }
         public Event Event { get; set; }
 
 

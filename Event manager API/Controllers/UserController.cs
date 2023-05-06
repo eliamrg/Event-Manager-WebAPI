@@ -4,13 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Event_manager_API.Controllers
 {
-    
     [ApiController]
-    [Route("Event")]
-    public class EventController : ControllerBase
+    [Route("User")]
+    public class UserController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        public EventController(ApplicationDbContext context)
+        public UserController(ApplicationDbContext context)
         {
             this.dbContext = context;
         }
@@ -18,39 +17,37 @@ namespace Event_manager_API.Controllers
         //GET ALL--------------------------------------------------------------------------------
 
         /// <summary>
-        /// Get a list of Events.
+        /// Get a list of Users.
         /// </summary>
-        
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<Event>>> GetAll()
+        public async Task<ActionResult<List<User>>> GetAll()
         {
-            return await dbContext.Event.ToListAsync();
+            return await dbContext.User.ToListAsync();
         }
 
         //GET BY ID-------------------------------------------------------------------------------
 
         /// <summary>
-        /// Get Event by Id.
+        /// Get User by Id.
         /// </summary>
-        
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Event>> GetById(int id)
+        public async Task<ActionResult<User>> GetById(int id)
         {
-            return await dbContext.Event.FirstOrDefaultAsync(x => x.Id == id);
+            return await dbContext.User.FirstOrDefaultAsync(x => x.Id == id);
         }
 
 
         //POST---------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Add an Event.
+        /// Add a User.
         /// </summary>
-        /// <param name="event_"></param>
-        /// <returns>A newly created Event</returns>
+        /// <param name="user"></param>
+        /// <returns>A newly created User</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To add a new Event follow this strcture
+        ///     To add a new user follow this strcture
         ///     {
         ///        "createdAt": "2023-05-06T18:01:53.212Z",
         ///        "name": "Arena Monterrey",
@@ -59,10 +56,10 @@ namespace Event_manager_API.Controllers
         ///     }
         ///
         /// </remarks>
-        /// 
 
         [HttpPost]
-        public async Task<ActionResult> Post(Event event_)
+
+        public async Task<ActionResult> Post(User user)
         {
             /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == celular.MarcaID);
             if (!existeMarca)
@@ -70,7 +67,7 @@ namespace Event_manager_API.Controllers
                 return BadRequest("Does not exist");
             }
             */
-            dbContext.Add(event_);
+            dbContext.Add(user);
 
             await dbContext.SaveChangesAsync();
 
@@ -81,15 +78,15 @@ namespace Event_manager_API.Controllers
         //UPDATE------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Update an Event.
+        /// Update a User.
         /// </summary>
-        /// <param name="event_"></param>
+        /// <param name="user"></param>
         /// <param name="id"></param>
-        /// <returns>A newly created Event</returns>
+        /// <returns>A newly created User</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To Update an Event follow this strcture, and specify id
+        ///     To Update a user follow this strcture, and specify id
         ///     {
         ///        "Id": "1",
         ///        "createdAt": "2023-05-06T18:01:53.212Z",
@@ -99,12 +96,11 @@ namespace Event_manager_API.Controllers
         ///     }
         ///
         /// </remarks>
-        /// 
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Event event_, int id)
+        public async Task<ActionResult> Put(User user, int id)
         {
-            if (event_.Id != id)
+            if (user.Id != id)
             {
                 return BadRequest("The Id does not match the one established in the URL.");
             }
@@ -115,7 +111,7 @@ namespace Event_manager_API.Controllers
                 return BadRequest("Does not exist");
             }*/
 
-            dbContext.Update(event_);
+            dbContext.Update(user);
             await dbContext.SaveChangesAsync();
             return Ok();
         }
@@ -123,19 +119,18 @@ namespace Event_manager_API.Controllers
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Delete Event by Id.
+        /// Delete User by Id.
         /// </summary>
-        /// 
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var exist = await dbContext.Event.AnyAsync(x => x.Id == id);
+            var exist = await dbContext.User.AnyAsync(x => x.Id == id);
             if (!exist)
             {
                 return NotFound("Not found in the database");
             }
-            dbContext.Remove(new Event()
+            dbContext.Remove(new User()
             { Id = id, }
             );
             await dbContext.SaveChangesAsync();

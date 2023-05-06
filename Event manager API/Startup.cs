@@ -1,4 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 namespace Event_manager_API
@@ -26,7 +29,21 @@ namespace Event_manager_API
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Event Manager Api", Version = "" });
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo 
+                    { 
+                        Title = "Event Manager Api", 
+                        Version = "",
+                        Description = "An ASP.NET Core Web API for managing Events.\n\n Developed by Santiago Ramirez & Miguel Sanchez.",
+                        
+                        Contact = new OpenApiContact
+                        {
+                            Name = "Contact",
+                            Url = new Uri("https://eliamrg.github.io/PersonalWebSite/")
+                        }
+                    }
+                );
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
 
         }

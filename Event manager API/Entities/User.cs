@@ -27,10 +27,8 @@ namespace Event_manager_API.Entities
         public List<Form> FormResponses { get; set; }
 
         //------Follows
-        [InverseProperty(nameof(Follow.Admin))]
+        
         public List<Follow> Following { get; set; }
-
-        [InverseProperty(nameof(Follow.User))]
         public List<Follow> Followers { get; set; }
 
         //------Favourites
