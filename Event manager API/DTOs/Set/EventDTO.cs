@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 
-namespace Event_manager_API.Entities
+namespace Event_manager_API.DTOs.Set
 {
-    public class Event
+    public class EventDTO
     {
         public int Id { get; set; }
         [Required]
@@ -33,23 +33,23 @@ namespace Event_manager_API.Entities
         //------User(Admin)
         [Required]
         public int AdminId { get; set; }
-        public User Admin { get; set; }
+        public UserDTO Admin { get; set; }
 
         //------Location
         [Required]
         public int LocationId { get; set; }
-        public Location Location { get; set; }
+        public LocationDTO Location { get; set; }
         
         //LISTS
 
         //------Tickets
-        public List<Ticket> Tickets { get; set; }
+        public List<TicketDTO> Tickets { get; set; }
         
         //------Coupons
-        public List<Coupon> Coupons { get; set; }
+        public List<CouponDTO> Coupons { get; set; }
         
         //------Form
-        public List<Form> FormResponses { get; set; }
+        public List<FormDTO> FormResponses { get; set; }
         
     }
 }

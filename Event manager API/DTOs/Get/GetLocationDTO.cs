@@ -1,9 +1,9 @@
 ﻿using Event_manager_API.Validations;
 using System.ComponentModel.DataAnnotations;
 
-namespace Event_manager_API.Entities
+namespace Event_manager_API.DTOs.Get
 {
-    public class Location
+    public class GetLocationDTO
     {
         public int Id { get; set; }
         [Required]
@@ -29,7 +29,7 @@ namespace Event_manager_API.Entities
         //LISTS
         
         //------Events
-        public List<Event> EventsList { get; set; }
+        public List<GetEventDTO> EventsList { get; set; }
 
 
         

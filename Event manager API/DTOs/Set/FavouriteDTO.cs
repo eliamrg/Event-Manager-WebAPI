@@ -1,26 +1,26 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Event_manager_API.Entities
+namespace Event_manager_API.DTOs.Set
 {
-    public class Form
+    public class FavouriteDTO
     {
         public int Id { get; set; }
-        [Required] 
-        public DateTime CreatedAt { get; set; }
+
         [Required]
-        public int Comment { get; set; }
+        public DateTime CreatedAt { get; set; }
+
 
         //RELATIONSHIPS
 
-        //------User
+        ///------User
         [Required]
         public int UserId { get; set; }
-        public User User { get; set; }
+        public UserDTO User { get; set; }
 
         //------Event
         [Required]
         public int EventId { get; set; }
-        public Event Event { get; set; }
+        public EventDTO Event { get; set; }
 
 
         //LISTS

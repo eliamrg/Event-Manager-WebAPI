@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Event_manager_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230506175454_InitialMigration")]
+    [Migration("20230507014620_Initial-Migration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -34,7 +34,11 @@ namespace Event_manager_API.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -44,9 +48,6 @@ namespace Event_manager_API.Migrations
 
                     b.Property<int>("EventId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("createdAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -82,7 +83,9 @@ namespace Event_manager_API.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<decimal>("TicketPrice")
                         .HasColumnType("decimal(18,2)");
@@ -104,14 +107,14 @@ namespace Event_manager_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("EventId")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("createdAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -130,14 +133,14 @@ namespace Event_manager_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AdminId")
+                    b.Property<int>("AdminId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("createdAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -186,6 +189,7 @@ namespace Event_manager_API.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Capacity")
@@ -195,7 +199,9 @@ namespace Event_manager_API.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
@@ -213,6 +219,9 @@ namespace Event_manager_API.Migrations
                     b.Property<int>("CouponId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("EventId")
                         .HasColumnType("int");
 
@@ -224,9 +233,6 @@ namespace Event_manager_API.Migrations
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("createdAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -251,16 +257,21 @@ namespace Event_manager_API.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Username")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
@@ -320,11 +331,13 @@ namespace Event_manager_API.Migrations
                 {
                     b.HasOne("Event_manager_API.Entities.User", "Admin")
                         .WithMany("Followers")
-                        .HasForeignKey("AdminId");
+                        .HasForeignKey("AdminId")
+                        .IsRequired();
 
                     b.HasOne("Event_manager_API.Entities.User", "User")
                         .WithMany("Following")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .IsRequired();
 
                     b.Navigation("Admin");
 

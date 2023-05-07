@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Event_manager_API.Entities
+namespace Event_manager_API.DTOs.Get
 {
-    public class Coupon
+    public class GetCouponDTO
     {
         public int Id { get; set; }
         [Required]
@@ -27,12 +27,12 @@ namespace Event_manager_API.Entities
         //------Event
         [Required]
         public int EventId { get; set; }
-        public Event Event { get; set; }
+        public GetEventDTO Event { get; set; }
 
 
         //LISTS
 
         //------Tickets Using that Coupon
-        public List<Ticket> Tickets { get; set; }
+        public List<GetTicketDTO> Tickets { get; set; }
     }
 }

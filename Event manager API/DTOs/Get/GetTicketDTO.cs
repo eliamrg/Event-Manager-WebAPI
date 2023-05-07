@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Event_manager_API.Entities
+namespace Event_manager_API.DTOs.Get
 {
-    public class Ticket
+    public class GetTicketDTO
     {
         public int Id { get; set; }
         [Required]
@@ -22,16 +22,16 @@ namespace Event_manager_API.Entities
         //------User
         [Required]
         public int UserId { get; set; }
-        public User User { get; set; }
+        public GetUserDTO User { get; set; }
 
         //------Event
         [Required]
         public int EventId { get; set; }
-        public Event Event { get; set; }
+        public GetEventDTO Event { get; set; }
         
         //------Coupon
         public int CouponId { get; set; }
-        public Coupon Coupon { get; set; }
+        public GetCouponDTO Coupon { get; set; }
 
         
 

@@ -1,4 +1,5 @@
 ﻿using Event_manager_API.Entities;
+using Event_manager_API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,9 +10,30 @@ namespace Event_manager_API.Controllers
     public class FollowController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        public FollowController(ApplicationDbContext context)
+        private readonly IService service;
+        private readonly ServiceTransient serviceTransient;
+        private readonly ServiceScoped serviceScoped;
+        private readonly ServiceSingleton serviceSingleton;
+        private readonly ILogger<FollowController> logger;
+        private readonly IWebHostEnvironment env;
+        
+        public FollowController(
+                    ApplicationDbContext context,
+                    IService service,
+                    ServiceTransient serviceTransient,
+                    ServiceScoped serviceScoped,
+                    ServiceSingleton serviceSingleton,
+                    ILogger<FollowController> logger,
+                    IWebHostEnvironment env
+               )
         {
             this.dbContext = context;
+            this.service = service;
+            this.serviceTransient = serviceTransient;
+            this.serviceScoped = serviceScoped;
+            this.serviceSingleton = serviceSingleton;
+            this.logger = logger;
+            this.env = env;
         }
 
         //GET ALL--------------------------------------------------------------------------------
@@ -22,7 +44,8 @@ namespace Event_manager_API.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<Follow>>> GetAll()
         {
-            return await dbContext.Follow.ToListAsync();
+            logger.LogInformation("Getting Follow List");
+            return await dbContext.Follow.Include(x => x.Admin).Include(x => x.User).ToListAsync();
         }
 
         //GET BY ID-------------------------------------------------------------------------------

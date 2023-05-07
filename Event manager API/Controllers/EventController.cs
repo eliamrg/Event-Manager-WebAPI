@@ -1,4 +1,5 @@
 ﻿using Event_manager_API.Entities;
+using Event_manager_API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,9 +11,30 @@ namespace Event_manager_API.Controllers
     public class EventController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        public EventController(ApplicationDbContext context)
+        private readonly IService service;
+        private readonly ServiceTransient serviceTransient;
+        private readonly ServiceScoped serviceScoped;
+        private readonly ServiceSingleton serviceSingleton;
+        private readonly ILogger<EventController> logger;
+        private readonly IWebHostEnvironment env;
+        
+        public EventController(
+                    ApplicationDbContext context,
+                    IService service,
+                    ServiceTransient serviceTransient,
+                    ServiceScoped serviceScoped,
+                    ServiceSingleton serviceSingleton,
+                    ILogger<EventController> logger,
+                    IWebHostEnvironment env
+               )
         {
             this.dbContext = context;
+            this.service = service;
+            this.serviceTransient = serviceTransient;
+            this.serviceScoped = serviceScoped;
+            this.serviceSingleton = serviceSingleton;
+            this.logger = logger;
+            this.env = env;
         }
 
         //GET ALL--------------------------------------------------------------------------------
@@ -20,10 +42,11 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Get a list of Events.
         /// </summary>
-        
+
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<Event>>> GetAll()
         {
+            logger.LogInformation("Getting Event List");
             return await dbContext.Event.ToListAsync();
         }
 

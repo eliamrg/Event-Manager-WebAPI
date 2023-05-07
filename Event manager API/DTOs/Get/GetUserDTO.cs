@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 using Event_manager_API.Validations;
 
-namespace Event_manager_API.Entities
+namespace Event_manager_API.DTOs.Get
 {
-    public class User
+    public class GetUserDTO
     {
         public int Id { get; set; }
         
@@ -39,17 +39,17 @@ namespace Event_manager_API.Entities
         //LISTS
 
         //------Tickets
-        public List<Ticket> Tickets { get; set; }
+        public List<GetTicketDTO> Tickets { get; set; }
 
         //------FormResponses
-        public List<Form> FormResponses { get; set; }
+        public List<GetFormDTO> FormResponses { get; set; }
 
         //------Follows
         
-        public List<Follow> Following { get; set; }
-        public List<Follow> Followers { get; set; }
+        public List<GetFollowDTO> Following { get; set; }
+        public List<GetFollowDTO> Followers { get; set; }
 
         //------Favourites
-        public List<Favourite> Favourites { get; set; }
+        public List<GetFavouriteDTO> Favourites { get; set; }
     }
 }

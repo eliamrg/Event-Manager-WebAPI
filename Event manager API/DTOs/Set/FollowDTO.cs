@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Event_manager_API.Entities
+namespace Event_manager_API.DTOs.Set
 {
-    public class Follow
+    public class FollowDTO
     {
         public int Id { get; set; }
         [Required]
@@ -14,12 +14,12 @@ namespace Event_manager_API.Entities
         //------User
         [Required] 
         public int UserId { get; set; }
-        public User User { get; set; }
+        public UserDTO User { get; set; }
 
         //------User Admin
         [Required] 
         public int AdminId { get; set; }
-        public User Admin { get; set; }
+        public UserDTO Admin { get; set; }
 
 
 

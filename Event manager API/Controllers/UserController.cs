@@ -1,6 +1,11 @@
-﻿using Event_manager_API.Entities;
+﻿using AutoMapper;
+using Event_manager_API.DTOs.Set;
+using Event_manager_API.Entities;
+using Event_manager_API.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace Event_manager_API.Controllers
 {
@@ -9,10 +14,34 @@ namespace Event_manager_API.Controllers
     public class UserController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        public UserController(ApplicationDbContext context)
+        private readonly IService service;
+        private readonly ServiceTransient serviceTransient;
+        private readonly ServiceScoped serviceScoped;
+        private readonly ServiceSingleton serviceSingleton;
+        private readonly ILogger<UserController> logger;
+        private readonly IWebHostEnvironment env;
+        private readonly Mapper mapper;
+        public UserController(
+                    ApplicationDbContext context,
+                    IService service,
+                    ServiceTransient serviceTransient,
+                    ServiceScoped serviceScoped,
+                    ServiceSingleton serviceSingleton,
+                    ILogger<UserController> logger,
+                    IWebHostEnvironment env,
+                    Mapper mapper
+               )
         {
             this.dbContext = context;
+            this.service = service;
+            this.serviceTransient = serviceTransient;
+            this.serviceScoped = serviceScoped;
+            this.serviceSingleton = serviceSingleton;
+            this.logger = logger;
+            this.env = env;
+            this.mapper = mapper;
         }
+
 
         //GET ALL--------------------------------------------------------------------------------
 
@@ -22,6 +51,7 @@ namespace Event_manager_API.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<User>>> GetAll()
         {
+            logger.LogInformation("Getting User List");
             return await dbContext.User.ToListAsync();
         }
 
@@ -42,24 +72,25 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Add a User.
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name="userDTO"></param>
         /// <returns>A newly created User</returns>
         /// <remarks>
         /// Sample request:
         ///
         ///     To add a new user follow this strcture
         ///     {
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "createdAt": "2023-05-07T02:57:19.824Z",
+        ///         "username": "string",
+        ///         "email": "user@example.com",
+        ///         "password": "string",
+        ///         "role": "string"
         ///     }
         ///
         /// </remarks>
 
         [HttpPost]
 
-        public async Task<ActionResult> Post(User user)
+        public async Task<ActionResult> Post([FromBody] UserDTO userDTO)
         {
             /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == celular.MarcaID);
             if (!existeMarca)
@@ -67,6 +98,7 @@ namespace Event_manager_API.Controllers
                 return BadRequest("Does not exist");
             }
             */
+            var user=mapper.Map<User>(userDTO);
             dbContext.Add(user);
 
             await dbContext.SaveChangesAsync();
@@ -88,11 +120,11 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update a user follow this strcture, and specify id
         ///     {
-        ///        "Id": "1",
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "createdAt": "2023-05-07T02:57:19.824Z",
+        ///         "username": "string",
+        ///         "email": "user@example.com",
+        ///         "password": "string",
+        ///         "role": "string"
         ///     }
         ///
         /// </remarks>

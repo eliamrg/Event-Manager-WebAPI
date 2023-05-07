@@ -1,4 +1,5 @@
 ﻿using Event_manager_API.Entities;
+using Event_manager_API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,9 +10,30 @@ namespace Event_manager_API.Controllers
     public class FavouriteController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        public FavouriteController(ApplicationDbContext context)
+        private readonly IService service;
+        private readonly ServiceTransient serviceTransient;
+        private readonly ServiceScoped serviceScoped;
+        private readonly ServiceSingleton serviceSingleton;
+        private readonly ILogger<FavouriteController> logger;
+        private readonly IWebHostEnvironment env;
+        
+        public FavouriteController(
+                    ApplicationDbContext context,
+                    IService service,
+                    ServiceTransient serviceTransient,
+                    ServiceScoped serviceScoped,
+                    ServiceSingleton serviceSingleton,
+                    ILogger<FavouriteController> logger,
+                    IWebHostEnvironment env
+               )
         {
             this.dbContext = context;
+            this.service = service;
+            this.serviceTransient = serviceTransient;
+            this.serviceScoped = serviceScoped;
+            this.serviceSingleton = serviceSingleton;
+            this.logger = logger;
+            this.env = env;
         }
 
         //GET ALL--------------------------------------------------------------------------------
@@ -22,6 +44,7 @@ namespace Event_manager_API.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<Favourite>>> GetAll()
         {
+            logger.LogInformation("Getting Favourite List");
             return await dbContext.Favourite.ToListAsync();
         }
 
