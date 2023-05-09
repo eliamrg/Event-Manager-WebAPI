@@ -86,13 +86,13 @@ namespace Event_manager_API.Controllers
         //UPDATE------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Update a User.
+        /// Update User.
         /// </summary>
         /// <returns>A newly created User</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To Update a user follow this strcture, and specify id
+        ///     To Update user follow this strcture, and specify id
         ///     {
         ///         "createdAt": "2023-05-07T02:57:19.824Z",
         ///         "username": "string",
@@ -122,7 +122,7 @@ namespace Event_manager_API.Controllers
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Delete User by Id.
+        /// Delete User.
         /// </summary>
         /// 
 

@@ -98,13 +98,13 @@ namespace Event_manager_API.Controllers
         //UPDATE------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Update a Favourite.
+        /// Update Favourite.
         /// </summary>
         /// <returns>A newly created Favourite</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To Update a favourite follow this strcture, and specify id
+        ///     To Update favourite follow this strcture, and specify id
         ///     {
         ///         "createdAt": "2023-05-09T03:02:49.829Z",
         ///         "userId": 0,
@@ -144,7 +144,7 @@ namespace Event_manager_API.Controllers
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Delete Favourite by Id.
+        /// Delete Favourite.
         /// </summary>
         /// 
 

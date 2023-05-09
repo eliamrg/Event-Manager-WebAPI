@@ -97,13 +97,13 @@ namespace Event_manager_API.Controllers
         //UPDATE------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Update a Form.
+        /// Update Form.
         /// </summary>
         /// <returns>A newly created Form</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To Update a form follow this strcture, and specify id
+        ///     To Update form follow this strcture, and specify id
         ///     {
         ///         "createdAt": "2023-05-09T03:05:49.215Z",
         ///         "comment": 0,
@@ -144,7 +144,7 @@ namespace Event_manager_API.Controllers
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Delete Form by Id.
+        /// Delete Form.
         /// </summary>
         /// 
 

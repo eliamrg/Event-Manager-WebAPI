@@ -93,13 +93,13 @@ namespace Event_manager_API.Controllers
         //UPDATE------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Update a Coupon.
+        /// Update Coupon.
         /// </summary>
         /// <returns>A newly created Coupon</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To Update a coupon follow this strcture, and specify id
+        ///     To Update coupon follow this strcture, and specify id
         ///     {
         ///         "createdAt": "2023-05-09T02:43:40.454Z",
         ///         "description": "string",
@@ -135,7 +135,7 @@ namespace Event_manager_API.Controllers
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Delete Coupon by Id.
+        /// Delete Coupon.
         /// </summary>
         /// 
 

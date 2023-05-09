@@ -96,13 +96,13 @@ namespace Event_manager_API.Controllers
         //UPDATE------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Update a Follow.
+        /// Update Follow.
         /// </summary>
         /// <returns>A newly created Follow</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To Update a follow follow this strcture, and specify id
+        ///     To Update follow follow this strcture, and specify id
         ///     {
         ///         "createdAt": "2023-05-09T03:05:01.100Z",
         ///         "userId": 0,
@@ -136,7 +136,7 @@ namespace Event_manager_API.Controllers
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Delete Follow by Id.
+        /// Delete Follow.
         /// </summary>
         /// 
 

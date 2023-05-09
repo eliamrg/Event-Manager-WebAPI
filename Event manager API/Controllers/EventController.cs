@@ -103,13 +103,13 @@ namespace Event_manager_API.Controllers
         //UPDATE------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Update a Event.
+        /// Update Event.
         /// </summary>
         /// <returns>A newly created Event</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To Update a event_ follow this strcture, and specify id
+        ///     To Update event_ follow this strcture, and specify id
         ///     {
         ///         "createdAt": "2023-05-09T02:48:00.083Z",
         ///         "name": "string",
@@ -154,7 +154,7 @@ namespace Event_manager_API.Controllers
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Delete Event by Id.
+        /// Delete Event.
         /// </summary>
         /// 
 

@@ -40,9 +40,13 @@ namespace Event_manager_API.Services
         }
         private void Escribir(string msg)
         {
-            var rute = $@"{env.ContentRootPath}wwwroot\{FileName}";
+            try {
+                var rute = $@"{env.ContentRootPath}wwwroot\{FileName}";
 
-            using (StreamWriter writer = new StreamWriter(rute, append: true)) { writer.WriteLine(msg); }
+                using (StreamWriter writer = new StreamWriter(rute, append: true)) { writer.WriteLine(msg); }
+            }
+            catch(Exception e) { }
+            
         }
 
         private void GuardarAlumnos()

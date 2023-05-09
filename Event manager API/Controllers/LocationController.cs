@@ -85,13 +85,13 @@ namespace Event_manager_API.Controllers
         //UPDATE------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Update a Location.
+        /// Update Location.
         /// </summary>
         /// <returns>A newly created Location</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To Update a location follow this strcture, and specify id
+        ///     To Update location follow this strcture, and specify id
         ///     {
         ///         "createdAt": "2023-05-09T03:13:39.510Z",
         ///         "name": "string",
@@ -120,7 +120,7 @@ namespace Event_manager_API.Controllers
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Delete Location by Id.
+        /// Delete Location .
         /// </summary>
         /// 
 
