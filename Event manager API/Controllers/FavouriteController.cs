@@ -1,7 +1,11 @@
-﻿using Event_manager_API.Entities;
-using Event_manager_API.Services;
+﻿using AutoMapper;
+using Event_manager_API.DTOs.Get;
+using Event_manager_API.DTOs.Set;
+using Event_manager_API.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+
 
 namespace Event_manager_API.Controllers
 {
@@ -10,30 +14,17 @@ namespace Event_manager_API.Controllers
     public class FavouriteController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        private readonly IService service;
-        private readonly ServiceTransient serviceTransient;
-        private readonly ServiceScoped serviceScoped;
-        private readonly ServiceSingleton serviceSingleton;
         private readonly ILogger<FavouriteController> logger;
-        private readonly IWebHostEnvironment env;
-        
+        private readonly IMapper mapper;
         public FavouriteController(
                     ApplicationDbContext context,
-                    IService service,
-                    ServiceTransient serviceTransient,
-                    ServiceScoped serviceScoped,
-                    ServiceSingleton serviceSingleton,
                     ILogger<FavouriteController> logger,
-                    IWebHostEnvironment env
+                    IMapper mapper
                )
         {
             this.dbContext = context;
-            this.service = service;
-            this.serviceTransient = serviceTransient;
-            this.serviceScoped = serviceScoped;
-            this.serviceSingleton = serviceSingleton;
             this.logger = logger;
-            this.env = env;
+            this.mapper = mapper;
         }
 
         //GET ALL--------------------------------------------------------------------------------
@@ -42,10 +33,11 @@ namespace Event_manager_API.Controllers
         /// Get a list of Favourites.
         /// </summary>
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<Favourite>>> GetAll()
+        public async Task<ActionResult<List<GetFavouriteDTO>>> GetAll()
         {
             logger.LogInformation("Getting Favourite List");
-            return await dbContext.Favourite.ToListAsync();
+            var favourite = await dbContext.Favourite.ToListAsync();
+            return mapper.Map<List<GetFavouriteDTO>>(favourite);
         }
 
         //GET BY ID-------------------------------------------------------------------------------
@@ -54,9 +46,10 @@ namespace Event_manager_API.Controllers
         /// Get Favourite by Id.
         /// </summary>
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Favourite>> GetById(int id)
+        public async Task<ActionResult<GetFavouriteDTO>> GetById(int id)
         {
-            return await dbContext.Favourite.FirstOrDefaultAsync(x => x.Id == id);
+            var favourite = await dbContext.Favourite.FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetFavouriteDTO>(favourite);
         }
 
 
@@ -65,35 +58,27 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Add a Favourite.
         /// </summary>
-        /// <param name="favourite"></param>
-        /// <returns>A newly created Favourite</returns>
         /// <remarks>
         /// Sample request:
         ///
         ///     To add a new favourite follow this strcture
         ///     {
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "createdAt": "2023-05-07T02:57:19.824Z",
+        ///         "favouritename": "string",
+        ///         "email": "favourite@example.com",
+        ///         "password": "string",
+        ///         "role": "string"
         ///     }
         ///
         /// </remarks>
 
         [HttpPost]
 
-        public async Task<ActionResult> Post(Favourite favourite)
+        public async Task<ActionResult> Post([FromBody] FavouriteDTO favouriteDTO)
         {
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == celular.MarcaID);
-            if (!existeMarca)
-            {
-                return BadRequest("Does not exist");
-            }
-            */
+            var favourite = mapper.Map<Favourite>(favouriteDTO);
             dbContext.Add(favourite);
-
             await dbContext.SaveChangesAsync();
-
             return Ok();
         }
 
@@ -103,37 +88,38 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Update a Favourite.
         /// </summary>
-        /// <param name="favourite"></param>
-        /// <param name="id"></param>
         /// <returns>A newly created Favourite</returns>
         /// <remarks>
         /// Sample request:
         ///
         ///     To Update a favourite follow this strcture, and specify id
         ///     {
-        ///        "Id": "1",
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "createdAt": "2023-05-07T02:57:19.824Z",
+        ///         "favouritename": "string",
+        ///         "email": "favourite@example.com",
+        ///         "password": "string",
+        ///         "role": "favourite or admin"
         ///     }
         ///
         /// </remarks>
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Favourite favourite, int id)
+        public async Task<ActionResult> PutFavourite(FavouriteDTO favouriteDTO, [FromRoute] int id)
         {
-            if (favourite.Id != id)
+            var exists = await dbContext.Favourite.AnyAsync(x => x.Id == id);
+            if (!exists)
             {
-                return BadRequest("The Id does not match the one established in the URL.");
+                return NotFound("Does not exist");
             }
 
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == event_.MarcaID);
-            if (!existeMarca)
+            /*
+            var relationshipExists = await dbContext.Relationship.AnyAsync(x => x.Id == Table.RelationshipId);
+            if (!relationshipExists)
             {
-                return BadRequest("Does not exist");
+                return BadRequest("Does relationship does not exist");
             }*/
-
+            var favourite = mapper.Map<Favourite>(favouriteDTO);
+            favourite.Id = id;
             dbContext.Update(favourite);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -144,6 +130,8 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Delete Favourite by Id.
         /// </summary>
+        /// 
+
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
@@ -151,7 +139,7 @@ namespace Event_manager_API.Controllers
             var exist = await dbContext.Favourite.AnyAsync(x => x.Id == id);
             if (!exist)
             {
-                return NotFound("Not found in the database");
+                return NotFound();
             }
             dbContext.Remove(new Favourite()
             { Id = id, }

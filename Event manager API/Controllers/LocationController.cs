@@ -1,7 +1,11 @@
-﻿using Event_manager_API.Entities;
-using Event_manager_API.Services;
+﻿using AutoMapper;
+using Event_manager_API.DTOs.Get;
+using Event_manager_API.DTOs.Set;
+using Event_manager_API.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+
 
 namespace Event_manager_API.Controllers
 {
@@ -9,32 +13,18 @@ namespace Event_manager_API.Controllers
     [Route("Location")]
     public class LocationController : ControllerBase
     {
-        
         private readonly ApplicationDbContext dbContext;
-        private readonly IService service;
-        private readonly ServiceTransient serviceTransient;
-        private readonly ServiceScoped serviceScoped;
-        private readonly ServiceSingleton serviceSingleton;
         private readonly ILogger<LocationController> logger;
-        private readonly IWebHostEnvironment env;
-        
+        private readonly IMapper mapper;
         public LocationController(
-                    ApplicationDbContext context, 
-                    IService service,
-                    ServiceTransient serviceTransient, 
-                    ServiceScoped serviceScoped,
-                    ServiceSingleton serviceSingleton, 
+                    ApplicationDbContext context,
                     ILogger<LocationController> logger,
-                    IWebHostEnvironment env
+                    IMapper mapper
                )
         {
             this.dbContext = context;
-            this.service = service;
-            this.serviceTransient = serviceTransient;
-            this.serviceScoped = serviceScoped;
-            this.serviceSingleton = serviceSingleton;
             this.logger = logger;
-            this.env = env;
+            this.mapper = mapper;
         }
 
         //GET ALL--------------------------------------------------------------------------------
@@ -43,10 +33,11 @@ namespace Event_manager_API.Controllers
         /// Get a list of Locations.
         /// </summary>
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<Location>>> GetAll()
+        public async Task<ActionResult<List<GetLocationDTO>>> GetAll()
         {
             logger.LogInformation("Getting Location List");
-            return await dbContext.Location.ToListAsync();
+            var location = await dbContext.Location.ToListAsync();
+            return mapper.Map<List<GetLocationDTO>>(location);
         }
 
         //GET BY ID-------------------------------------------------------------------------------
@@ -55,9 +46,10 @@ namespace Event_manager_API.Controllers
         /// Get Location by Id.
         /// </summary>
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Location>> GetById(int id)
+        public async Task<ActionResult<GetLocationDTO>> GetById(int id)
         {
-            return await dbContext.Location.FirstOrDefaultAsync(x => x.Id == id);
+            var location = await dbContext.Location.FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetLocationDTO>(location);
         }
 
 
@@ -66,35 +58,27 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Add a Location.
         /// </summary>
-        /// <param name="location"></param>
-        /// <returns>A newly created Location</returns>
         /// <remarks>
         /// Sample request:
         ///
         ///     To add a new location follow this strcture
         ///     {
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "createdAt": "2023-05-07T02:57:19.824Z",
+        ///         "locationname": "string",
+        ///         "email": "location@example.com",
+        ///         "password": "string",
+        ///         "role": "string"
         ///     }
         ///
         /// </remarks>
-       
+
         [HttpPost]
-        
-        public async Task<ActionResult> Post(Location location)
+
+        public async Task<ActionResult> Post([FromBody] LocationDTO locationDTO)
         {
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == celular.MarcaID);
-            if (!existeMarca)
-            {
-                return BadRequest("Does not exist");
-            }
-            */
+            var location = mapper.Map<Location>(locationDTO);
             dbContext.Add(location);
-
             await dbContext.SaveChangesAsync();
-
             return Ok();
         }
 
@@ -104,37 +88,38 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Update a Location.
         /// </summary>
-        /// <param name="location"></param>
-        /// <param name="id"></param>
         /// <returns>A newly created Location</returns>
         /// <remarks>
         /// Sample request:
         ///
         ///     To Update a location follow this strcture, and specify id
         ///     {
-        ///        "Id": "1",
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "createdAt": "2023-05-07T02:57:19.824Z",
+        ///         "locationname": "string",
+        ///         "email": "location@example.com",
+        ///         "password": "string",
+        ///         "role": "location or admin"
         ///     }
         ///
         /// </remarks>
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Location location, int id)
+        public async Task<ActionResult> PutLocation(LocationDTO locationDTO, [FromRoute] int id)
         {
-            if (location.Id != id)
+            var exists = await dbContext.Location.AnyAsync(x => x.Id == id);
+            if (!exists)
             {
-                return BadRequest("The Id does not match the one established in the URL.");
+                return NotFound("Does not exist");
             }
 
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == event_.MarcaID);
-            if (!existeMarca)
+            /*
+            var relationshipExists = await dbContext.Relationship.AnyAsync(x => x.Id == Table.RelationshipId);
+            if (!relationshipExists)
             {
-                return BadRequest("Does not exist");
+                return BadRequest("Does relationship does not exist");
             }*/
-
+            var location = mapper.Map<Location>(locationDTO);
+            location.Id = id;
             dbContext.Update(location);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -145,14 +130,16 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Delete Location by Id.
         /// </summary>
-        
+        /// 
+
+
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
             var exist = await dbContext.Location.AnyAsync(x => x.Id == id);
             if (!exist)
             {
-                return NotFound("Not found in the database");
+                return NotFound();
             }
             dbContext.Remove(new Location()
             { Id = id, }

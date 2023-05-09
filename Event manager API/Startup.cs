@@ -38,6 +38,7 @@ namespace Event_manager_API
             //sirve para funciones que ejecutan una funcionalidad y listo, sin tener
             //que mantener información que será reutilizada en otros lugares
             services.AddTransient<IService, ServiceA>();
+
             //services.AddTransient<ServiceA>();
             services.AddTransient<ServiceTransient>();
             //Scoped el tiempo de vida de la clase declarada aumenta, sin embargo, Scoped da diferentes instancia
@@ -47,6 +48,10 @@ namespace Event_manager_API
             //Singleton se tiene la misma instancia siempre para todos los usuarios en todos los días,
             //todos los usuarios que hagan una petición van a tener la misma info compartida entre todos 
             //services.AddSingleton<IService, ServiceA>();
+
+
+
+            services.AddAutoMapper(typeof(Startup));
             services.AddSingleton<ServiceSingleton>();
             services.AddTransient<ActionFilter>();
             services.AddHostedService<WriteFile>();

@@ -1,7 +1,11 @@
-﻿using Event_manager_API.Entities;
-using Event_manager_API.Services;
+﻿using AutoMapper;
+using Event_manager_API.DTOs.Get;
+using Event_manager_API.DTOs.Set;
+using Event_manager_API.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+
 
 namespace Event_manager_API.Controllers
 {
@@ -10,30 +14,17 @@ namespace Event_manager_API.Controllers
     public class FormController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        private readonly IService service;
-        private readonly ServiceTransient serviceTransient;
-        private readonly ServiceScoped serviceScoped;
-        private readonly ServiceSingleton serviceSingleton;
         private readonly ILogger<FormController> logger;
-        private readonly IWebHostEnvironment env;
-        
+        private readonly IMapper mapper;
         public FormController(
                     ApplicationDbContext context,
-                    IService service,
-                    ServiceTransient serviceTransient,
-                    ServiceScoped serviceScoped,
-                    ServiceSingleton serviceSingleton,
                     ILogger<FormController> logger,
-                    IWebHostEnvironment env
+                    IMapper mapper
                )
         {
             this.dbContext = context;
-            this.service = service;
-            this.serviceTransient = serviceTransient;
-            this.serviceScoped = serviceScoped;
-            this.serviceSingleton = serviceSingleton;
             this.logger = logger;
-            this.env = env;
+            this.mapper = mapper;
         }
 
         //GET ALL--------------------------------------------------------------------------------
@@ -42,10 +33,11 @@ namespace Event_manager_API.Controllers
         /// Get a list of Forms.
         /// </summary>
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<Form>>> GetAll()
+        public async Task<ActionResult<List<GetFormDTO>>> GetAll()
         {
             logger.LogInformation("Getting Form List");
-            return await dbContext.Form.ToListAsync();
+            var form = await dbContext.Form.ToListAsync();
+            return mapper.Map<List<GetFormDTO>>(form);
         }
 
         //GET BY ID-------------------------------------------------------------------------------
@@ -54,9 +46,10 @@ namespace Event_manager_API.Controllers
         /// Get Form by Id.
         /// </summary>
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Form>> GetById(int id)
+        public async Task<ActionResult<GetFormDTO>> GetById(int id)
         {
-            return await dbContext.Form.FirstOrDefaultAsync(x => x.Id == id);
+            var form = await dbContext.Form.FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetFormDTO>(form);
         }
 
 
@@ -65,35 +58,27 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Add a Form.
         /// </summary>
-        /// <param name="form"></param>
-        /// <returns>A newly created Form</returns>
         /// <remarks>
         /// Sample request:
         ///
         ///     To add a new form follow this strcture
         ///     {
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "createdAt": "2023-05-07T02:57:19.824Z",
+        ///         "formname": "string",
+        ///         "email": "form@example.com",
+        ///         "password": "string",
+        ///         "role": "string"
         ///     }
         ///
         /// </remarks>
 
         [HttpPost]
 
-        public async Task<ActionResult> Post(Form form)
+        public async Task<ActionResult> Post([FromBody] FormDTO formDTO)
         {
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == celular.MarcaID);
-            if (!existeMarca)
-            {
-                return BadRequest("Does not exist");
-            }
-            */
+            var form = mapper.Map<Form>(formDTO);
             dbContext.Add(form);
-
             await dbContext.SaveChangesAsync();
-
             return Ok();
         }
 
@@ -103,37 +88,38 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Update a Form.
         /// </summary>
-        /// <param name="form"></param>
-        /// <param name="id"></param>
         /// <returns>A newly created Form</returns>
         /// <remarks>
         /// Sample request:
         ///
         ///     To Update a form follow this strcture, and specify id
         ///     {
-        ///        "Id": "1",
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "createdAt": "2023-05-07T02:57:19.824Z",
+        ///         "formname": "string",
+        ///         "email": "form@example.com",
+        ///         "password": "string",
+        ///         "role": "form or admin"
         ///     }
         ///
         /// </remarks>
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Form form, int id)
+        public async Task<ActionResult> PutForm(FormDTO formDTO, [FromRoute] int id)
         {
-            if (form.Id != id)
+            var exists = await dbContext.Form.AnyAsync(x => x.Id == id);
+            if (!exists)
             {
-                return BadRequest("The Id does not match the one established in the URL.");
+                return NotFound("Does not exist");
             }
 
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == event_.MarcaID);
-            if (!existeMarca)
+            /*
+            var relationshipExists = await dbContext.Relationship.AnyAsync(x => x.Id == Table.RelationshipId);
+            if (!relationshipExists)
             {
-                return BadRequest("Does not exist");
+                return BadRequest("Does relationship does not exist");
             }*/
-
+            var form = mapper.Map<Form>(formDTO);
+            form.Id = id;
             dbContext.Update(form);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -144,6 +130,8 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Delete Form by Id.
         /// </summary>
+        /// 
+
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
@@ -151,7 +139,7 @@ namespace Event_manager_API.Controllers
             var exist = await dbContext.Form.AnyAsync(x => x.Id == id);
             if (!exist)
             {
-                return NotFound("Not found in the database");
+                return NotFound();
             }
             dbContext.Remove(new Form()
             { Id = id, }

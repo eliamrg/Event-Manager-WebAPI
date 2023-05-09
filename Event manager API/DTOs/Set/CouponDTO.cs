@@ -7,7 +7,7 @@ namespace Event_manager_API.DTOs.Set
 {
     public class CouponDTO
     {
-        public int Id { get; set; }
+        
         [Required]
         public DateTime CreatedAt { get; set; }
 
@@ -28,11 +28,5 @@ namespace Event_manager_API.DTOs.Set
         [Required]
         public int EventId { get; set; }
         public EventDTO Event { get; set; }
-
-
-        //LISTS
-
-        //------Tickets Using that Coupon
-        public List<TicketDTO> Tickets { get; set; }
     }
 }

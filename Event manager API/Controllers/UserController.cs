@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
+using Event_manager_API.DTOs.Get;
 using Event_manager_API.DTOs.Set;
 using Event_manager_API.Entities;
-using Event_manager_API.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+
 
 
 namespace Event_manager_API.Controllers
@@ -14,34 +14,18 @@ namespace Event_manager_API.Controllers
     public class UserController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        private readonly IService service;
-        private readonly ServiceTransient serviceTransient;
-        private readonly ServiceScoped serviceScoped;
-        private readonly ServiceSingleton serviceSingleton;
         private readonly ILogger<UserController> logger;
-        private readonly IWebHostEnvironment env;
-        private readonly Mapper mapper;
+        private readonly IMapper mapper;
         public UserController(
                     ApplicationDbContext context,
-                    IService service,
-                    ServiceTransient serviceTransient,
-                    ServiceScoped serviceScoped,
-                    ServiceSingleton serviceSingleton,
                     ILogger<UserController> logger,
-                    IWebHostEnvironment env,
-                    Mapper mapper
+                    IMapper mapper
                )
         {
             this.dbContext = context;
-            this.service = service;
-            this.serviceTransient = serviceTransient;
-            this.serviceScoped = serviceScoped;
-            this.serviceSingleton = serviceSingleton;
             this.logger = logger;
-            this.env = env;
             this.mapper = mapper;
         }
-
 
         //GET ALL--------------------------------------------------------------------------------
 
@@ -49,10 +33,11 @@ namespace Event_manager_API.Controllers
         /// Get a list of Users.
         /// </summary>
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<User>>> GetAll()
+        public async Task<ActionResult<List<GetUserDTO>>> GetAll()
         {
             logger.LogInformation("Getting User List");
-            return await dbContext.User.ToListAsync();
+            var user=await dbContext.User.ToListAsync();
+            return mapper.Map<List<GetUserDTO>>(user);
         }
 
         //GET BY ID-------------------------------------------------------------------------------
@@ -61,9 +46,10 @@ namespace Event_manager_API.Controllers
         /// Get User by Id.
         /// </summary>
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<User>> GetById(int id)
+        public async Task<ActionResult<GetUserDTO>> GetById(int id)
         {
-            return await dbContext.User.FirstOrDefaultAsync(x => x.Id == id);
+            var user = await dbContext.User.FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetUserDTO>(user);
         }
 
 
@@ -72,8 +58,6 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Add a User.
         /// </summary>
-        /// <param name="userDTO"></param>
-        /// <returns>A newly created User</returns>
         /// <remarks>
         /// Sample request:
         ///
@@ -92,17 +76,9 @@ namespace Event_manager_API.Controllers
 
         public async Task<ActionResult> Post([FromBody] UserDTO userDTO)
         {
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == celular.MarcaID);
-            if (!existeMarca)
-            {
-                return BadRequest("Does not exist");
-            }
-            */
-            var user=mapper.Map<User>(userDTO);
+            var user = mapper.Map<User>(userDTO);
             dbContext.Add(user);
-
             await dbContext.SaveChangesAsync();
-
             return Ok();
         }
 
@@ -112,8 +88,6 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Update a User.
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="id"></param>
         /// <returns>A newly created User</returns>
         /// <remarks>
         /// Sample request:
@@ -124,25 +98,28 @@ namespace Event_manager_API.Controllers
         ///         "username": "string",
         ///         "email": "user@example.com",
         ///         "password": "string",
-        ///         "role": "string"
+        ///         "role": "user or admin"
         ///     }
         ///
         /// </remarks>
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(User user, int id)
+        public async Task<ActionResult> PutUser ( UserDTO userDTO, [FromRoute]int id)
         {
-            if (user.Id != id)
+            var exists = await dbContext.User.AnyAsync(x => x.Id == id);
+            if (!exists)
             {
-                return BadRequest("The Id does not match the one established in the URL.");
+                return NotFound("Does not exist");
             }
 
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == event_.MarcaID);
-            if (!existeMarca)
+            /*
+            var relationshipExists = await dbContext.Relationship.AnyAsync(x => x.Id == Table.RelationshipId);
+            if (!relationshipExists)
             {
-                return BadRequest("Does not exist");
+                return BadRequest("Does relationship does not exist");
             }*/
-
+            var user = mapper.Map<User>(userDTO);
+            user.Id = id;
             dbContext.Update(user);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -153,6 +130,8 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Delete User by Id.
         /// </summary>
+        /// 
+
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
@@ -160,10 +139,10 @@ namespace Event_manager_API.Controllers
             var exist = await dbContext.User.AnyAsync(x => x.Id == id);
             if (!exist)
             {
-                return NotFound("Not found in the database");
+                return NotFound();
             }
             dbContext.Remove(new User()
-            { Id = id, }
+                { Id = id, }
             );
             await dbContext.SaveChangesAsync();
             return Ok();

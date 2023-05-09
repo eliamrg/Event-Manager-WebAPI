@@ -1,39 +1,30 @@
-﻿using Event_manager_API.Entities;
-using Event_manager_API.Services;
+﻿using AutoMapper;
+using Event_manager_API.DTOs.Get;
+using Event_manager_API.DTOs.Set;
+using Event_manager_API.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+
 
 namespace Event_manager_API.Controllers
 {
     [ApiController]
     [Route("Coupon")]
-    public class CouponController: ControllerBase
+    public class CouponController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        private readonly IService service;
-        private readonly ServiceTransient serviceTransient;
-        private readonly ServiceScoped serviceScoped;
-        private readonly ServiceSingleton serviceSingleton;
         private readonly ILogger<CouponController> logger;
-        private readonly IWebHostEnvironment env;
-       
+        private readonly IMapper mapper;
         public CouponController(
                     ApplicationDbContext context,
-                    IService service,
-                    ServiceTransient serviceTransient,
-                    ServiceScoped serviceScoped,
-                    ServiceSingleton serviceSingleton,
                     ILogger<CouponController> logger,
-                    IWebHostEnvironment env
+                    IMapper mapper
                )
         {
             this.dbContext = context;
-            this.service = service;
-            this.serviceTransient = serviceTransient;
-            this.serviceScoped = serviceScoped;
-            this.serviceSingleton = serviceSingleton;
             this.logger = logger;
-            this.env = env;
+            this.mapper = mapper;
         }
 
         //GET ALL--------------------------------------------------------------------------------
@@ -42,10 +33,11 @@ namespace Event_manager_API.Controllers
         /// Get a list of Coupons.
         /// </summary>
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<Coupon>>> GetAll()
+        public async Task<ActionResult<List<GetCouponDTO>>> GetAll()
         {
             logger.LogInformation("Getting Coupon List");
-            return await dbContext.Coupon.ToListAsync();
+            var coupon = await dbContext.Coupon.ToListAsync();
+            return mapper.Map<List<GetCouponDTO>>(coupon);
         }
 
         //GET BY ID-------------------------------------------------------------------------------
@@ -54,10 +46,10 @@ namespace Event_manager_API.Controllers
         /// Get Coupon by Id.
         /// </summary>
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Coupon>> GetById(int id)
+        public async Task<ActionResult<GetCouponDTO>> GetById(int id)
         {
-            logger.LogInformation("Getting Coupon");
-            return await dbContext.Coupon.FirstOrDefaultAsync(x => x.Id == id);
+            var coupon = await dbContext.Coupon.FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetCouponDTO>(coupon);
         }
 
 
@@ -66,35 +58,27 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Add a Coupon.
         /// </summary>
-        /// <param name="coupon"></param>
-        /// <returns>A newly created Coupon</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To add a new Coupon follow this strcture
+        ///     To add a new coupon follow this strcture
         ///     {
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "createdAt": "2023-05-07T02:57:19.824Z",
+        ///         "couponname": "string",
+        ///         "email": "coupon@example.com",
+        ///         "password": "string",
+        ///         "role": "string"
         ///     }
         ///
         /// </remarks>
 
         [HttpPost]
 
-        public async Task<ActionResult> Post(Coupon coupon)
+        public async Task<ActionResult> Post([FromBody] CouponDTO couponDTO)
         {
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == celular.MarcaID);
-            if (!existeMarca)
-            {
-                return BadRequest("Does not exist");
-            }
-            */
+            var coupon = mapper.Map<Coupon>(couponDTO);
             dbContext.Add(coupon);
-
             await dbContext.SaveChangesAsync();
-            logger.LogInformation("Coupon Added");
             return Ok();
         }
 
@@ -104,40 +88,40 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Update a Coupon.
         /// </summary>
-        /// <param name="coupon"></param>
-        /// <param name="id"></param>
         /// <returns>A newly created Coupon</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To Update a Coupon follow this strcture, and specify id
+        ///     To Update a coupon follow this strcture, and specify id
         ///     {
-        ///        "Id": "1",
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "createdAt": "2023-05-07T02:57:19.824Z",
+        ///         "couponname": "string",
+        ///         "email": "coupon@example.com",
+        ///         "password": "string",
+        ///         "role": "coupon or admin"
         ///     }
         ///
         /// </remarks>
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Coupon coupon, int id)
+        public async Task<ActionResult> PutCoupon(CouponDTO couponDTO, [FromRoute] int id)
         {
-            if (coupon.Id != id)
+            var exists = await dbContext.Coupon.AnyAsync(x => x.Id == id);
+            if (!exists)
             {
-                return BadRequest("The Id does not match the one established in the URL.");
+                return NotFound("Does not exist");
             }
 
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == event_.MarcaID);
-            if (!existeMarca)
+            /*
+            var relationshipExists = await dbContext.Relationship.AnyAsync(x => x.Id == Table.RelationshipId);
+            if (!relationshipExists)
             {
-                return BadRequest("Does not exist");
+                return BadRequest("Does relationship does not exist");
             }*/
-
+            var coupon = mapper.Map<Coupon>(couponDTO);
+            coupon.Id = id;
             dbContext.Update(coupon);
             await dbContext.SaveChangesAsync();
-            logger.LogInformation("Coupon Updated");
             return Ok();
         }
 
@@ -146,6 +130,8 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Delete Coupon by Id.
         /// </summary>
+        /// 
+
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
@@ -153,13 +139,12 @@ namespace Event_manager_API.Controllers
             var exist = await dbContext.Coupon.AnyAsync(x => x.Id == id);
             if (!exist)
             {
-                return NotFound("Not found in the database");
+                return NotFound();
             }
             dbContext.Remove(new Coupon()
             { Id = id, }
             );
             await dbContext.SaveChangesAsync();
-            logger.LogInformation("Coupon Deleted");
             return Ok();
         }
     }

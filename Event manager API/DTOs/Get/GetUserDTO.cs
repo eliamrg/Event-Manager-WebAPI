@@ -39,17 +39,17 @@ namespace Event_manager_API.DTOs.Get
         //LISTS
 
         //------Tickets
-        public List<GetTicketDTO> Tickets { get; set; }
+        //public List<GetTicketDTO> Tickets { get; set; }
 
         //------FormResponses
-        public List<GetFormDTO> FormResponses { get; set; }
+        //public List<GetFormDTO> FormResponses { get; set; }
 
         //------Follows
-        
-        public List<GetFollowDTO> Following { get; set; }
-        public List<GetFollowDTO> Followers { get; set; }
+
+        //public List<GetFollowDTO> Following { get; set; }
+        //public List<GetFollowDTO> Followers { get; set; }
 
         //------Favourites
-        public List<GetFavouriteDTO> Favourites { get; set; }
+        //public List<GetFavouriteDTO> Favourites { get; set; }
     }
 }

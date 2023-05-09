@@ -1,40 +1,30 @@
-﻿using Event_manager_API.Entities;
-using Event_manager_API.Services;
+﻿using AutoMapper;
+using Event_manager_API.DTOs.Get;
+using Event_manager_API.DTOs.Set;
+using Event_manager_API.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+
+
 namespace Event_manager_API.Controllers
 {
-    
     [ApiController]
     [Route("Event")]
     public class EventController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        private readonly IService service;
-        private readonly ServiceTransient serviceTransient;
-        private readonly ServiceScoped serviceScoped;
-        private readonly ServiceSingleton serviceSingleton;
         private readonly ILogger<EventController> logger;
-        private readonly IWebHostEnvironment env;
-        
+        private readonly IMapper mapper;
         public EventController(
                     ApplicationDbContext context,
-                    IService service,
-                    ServiceTransient serviceTransient,
-                    ServiceScoped serviceScoped,
-                    ServiceSingleton serviceSingleton,
                     ILogger<EventController> logger,
-                    IWebHostEnvironment env
+                    IMapper mapper
                )
         {
             this.dbContext = context;
-            this.service = service;
-            this.serviceTransient = serviceTransient;
-            this.serviceScoped = serviceScoped;
-            this.serviceSingleton = serviceSingleton;
             this.logger = logger;
-            this.env = env;
+            this.mapper = mapper;
         }
 
         //GET ALL--------------------------------------------------------------------------------
@@ -42,12 +32,12 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Get a list of Events.
         /// </summary>
-
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<Event>>> GetAll()
+        public async Task<ActionResult<List<GetEventDTO>>> GetAll()
         {
             logger.LogInformation("Getting Event List");
-            return await dbContext.Event.ToListAsync();
+            var event_ = await dbContext.Event.ToListAsync();
+            return mapper.Map<List<GetEventDTO>>(event_);
         }
 
         //GET BY ID-------------------------------------------------------------------------------
@@ -55,48 +45,40 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Get Event by Id.
         /// </summary>
-        
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Event>> GetById(int id)
+        public async Task<ActionResult<GetEventDTO>> GetById(int id)
         {
-            return await dbContext.Event.FirstOrDefaultAsync(x => x.Id == id);
+            var event_ = await dbContext.Event.FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetEventDTO>(event_);
         }
 
 
         //POST---------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Add an Event.
+        /// Add a Event.
         /// </summary>
-        /// <param name="event_"></param>
-        /// <returns>A newly created Event</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To add a new Event follow this strcture
+        ///     To add a new event_ follow this strcture
         ///     {
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "createdAt": "2023-05-07T02:57:19.824Z",
+        ///         "event_name": "string",
+        ///         "email": "event_@example.com",
+        ///         "password": "string",
+        ///         "role": "string"
         ///     }
         ///
         /// </remarks>
-        /// 
 
         [HttpPost]
-        public async Task<ActionResult> Post(Event event_)
+
+        public async Task<ActionResult> Post([FromBody] EventDTO event_DTO)
         {
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == celular.MarcaID);
-            if (!existeMarca)
-            {
-                return BadRequest("Does not exist");
-            }
-            */
+            var event_ = mapper.Map<Event>(event_DTO);
             dbContext.Add(event_);
-
             await dbContext.SaveChangesAsync();
-
             return Ok();
         }
 
@@ -104,40 +86,40 @@ namespace Event_manager_API.Controllers
         //UPDATE------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Update an Event.
+        /// Update a Event.
         /// </summary>
-        /// <param name="event_"></param>
-        /// <param name="id"></param>
         /// <returns>A newly created Event</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To Update an Event follow this strcture, and specify id
+        ///     To Update a event_ follow this strcture, and specify id
         ///     {
-        ///        "Id": "1",
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "createdAt": "2023-05-07T02:57:19.824Z",
+        ///         "event_name": "string",
+        ///         "email": "event_@example.com",
+        ///         "password": "string",
+        ///         "role": "event_ or admin"
         ///     }
         ///
         /// </remarks>
-        /// 
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Event event_, int id)
+        public async Task<ActionResult> PutEvent(EventDTO event_DTO, [FromRoute] int id)
         {
-            if (event_.Id != id)
+            var exists = await dbContext.Event.AnyAsync(x => x.Id == id);
+            if (!exists)
             {
-                return BadRequest("The Id does not match the one established in the URL.");
+                return NotFound("Does not exist");
             }
 
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == event_.MarcaID);
-            if (!existeMarca)
+            /*
+            var relationshipExists = await dbContext.Relationship.AnyAsync(x => x.Id == Table.RelationshipId);
+            if (!relationshipExists)
             {
-                return BadRequest("Does not exist");
+                return BadRequest("Does relationship does not exist");
             }*/
-
+            var event_ = mapper.Map<Event>(event_DTO);
+            event_.Id = id;
             dbContext.Update(event_);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -150,13 +132,14 @@ namespace Event_manager_API.Controllers
         /// </summary>
         /// 
 
+
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
             var exist = await dbContext.Event.AnyAsync(x => x.Id == id);
             if (!exist)
             {
-                return NotFound("Not found in the database");
+                return NotFound();
             }
             dbContext.Remove(new Event()
             { Id = id, }

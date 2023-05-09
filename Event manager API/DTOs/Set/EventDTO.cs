@@ -8,7 +8,7 @@ namespace Event_manager_API.DTOs.Set
 {
     public class EventDTO
     {
-        public int Id { get; set; }
+        
         [Required]
         public DateTime CreatedAt { get; set; }
         [Required] 
@@ -33,23 +33,14 @@ namespace Event_manager_API.DTOs.Set
         //------User(Admin)
         [Required]
         public int AdminId { get; set; }
-        public UserDTO Admin { get; set; }
+       
 
         //------Location
         [Required]
         public int LocationId { get; set; }
-        public LocationDTO Location { get; set; }
         
-        //LISTS
-
-        //------Tickets
-        public List<TicketDTO> Tickets { get; set; }
         
-        //------Coupons
-        public List<CouponDTO> Coupons { get; set; }
         
-        //------Form
-        public List<FormDTO> FormResponses { get; set; }
         
     }
 }

@@ -5,7 +5,7 @@ namespace Event_manager_API.DTOs.Set
 {
     public class LocationDTO
     {
-        public int Id { get; set; }
+        
         [Required]
         public DateTime CreatedAt { get; set; }
         
@@ -25,13 +25,6 @@ namespace Event_manager_API.DTOs.Set
         
         //------X
         
-        
-        //LISTS
-        
-        //------Events
-        public List<EventDTO> EventsList { get; set; }
-
-
         
     }
 }
