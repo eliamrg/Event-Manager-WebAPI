@@ -63,11 +63,14 @@ namespace Event_manager_API.Controllers
         ///
         ///     To add a new event_ follow this strcture
         ///     {
-        ///         "createdAt": "2023-05-07T02:57:19.824Z",
-        ///         "event_name": "string",
-        ///         "email": "event_@example.com",
-        ///         "password": "string",
-        ///         "role": "string"
+        ///         "createdAt": "2023-05-09T02:48:00.083Z",
+        ///         "name": "string",
+        ///         "description": "string",
+        ///         "ticketPrice": 0,
+        ///         "eventCapacity": 0,
+        ///         "date": "2023-05-09T02:48:00.083Z",
+        ///         "adminId": 0,
+        ///         "locationId": 0
         ///     }
         ///
         /// </remarks>
@@ -76,6 +79,20 @@ namespace Event_manager_API.Controllers
 
         public async Task<ActionResult> Post([FromBody] EventDTO event_DTO)
         {
+            
+
+            var adminExists = await dbContext.User.AnyAsync(x => (x.Id == event_DTO.AdminId && x.Role=="admin"));
+            if (!adminExists)
+            {
+                return BadRequest("That Administrator does not exist");
+            }
+
+            var locationExists = await dbContext.Location.AnyAsync(x => x.Id == event_DTO.LocationId );
+            if (!locationExists)
+            {
+                return BadRequest("That Location does not exist");
+            }
+
             var event_ = mapper.Map<Event>(event_DTO);
             dbContext.Add(event_);
             await dbContext.SaveChangesAsync();
@@ -94,11 +111,14 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update a event_ follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-07T02:57:19.824Z",
-        ///         "event_name": "string",
-        ///         "email": "event_@example.com",
-        ///         "password": "string",
-        ///         "role": "event_ or admin"
+        ///         "createdAt": "2023-05-09T02:48:00.083Z",
+        ///         "name": "string",
+        ///         "description": "string",
+        ///         "ticketPrice": 0,
+        ///         "eventCapacity": 0,
+        ///         "date": "2023-05-09T02:48:00.083Z",
+        ///         "adminId": 0,
+        ///         "locationId": 0
         ///     }
         ///
         /// </remarks>
@@ -109,15 +129,21 @@ namespace Event_manager_API.Controllers
             var exists = await dbContext.Event.AnyAsync(x => x.Id == id);
             if (!exists)
             {
-                return NotFound("Does not exist");
+                return NotFound();
             }
 
-            /*
-            var relationshipExists = await dbContext.Relationship.AnyAsync(x => x.Id == Table.RelationshipId);
-            if (!relationshipExists)
+            var adminExists = await dbContext.User.AnyAsync(x => (x.Id == event_DTO.AdminId && x.Role == "admin"));
+            if (!adminExists)
             {
-                return BadRequest("Does relationship does not exist");
-            }*/
+                return BadRequest("That Administrator does not exist");
+            }
+
+            var locationExists = await dbContext.Location.AnyAsync(x => x.Id == event_DTO.LocationId);
+            if (!locationExists)
+            {
+                return BadRequest("That Location does not exist");
+            }
+
             var event_ = mapper.Map<Event>(event_DTO);
             event_.Id = id;
             dbContext.Update(event_);

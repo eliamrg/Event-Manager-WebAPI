@@ -112,12 +112,6 @@ namespace Event_manager_API.Controllers
                 return NotFound("Does not exist");
             }
 
-            /*
-            var relationshipExists = await dbContext.Relationship.AnyAsync(x => x.Id == Table.RelationshipId);
-            if (!relationshipExists)
-            {
-                return BadRequest("Does relationship does not exist");
-            }*/
             var user = mapper.Map<User>(userDTO);
             user.Id = id;
             dbContext.Update(user);
@@ -147,5 +141,7 @@ namespace Event_manager_API.Controllers
             await dbContext.SaveChangesAsync();
             return Ok();
         }
+
+       
     }
 }

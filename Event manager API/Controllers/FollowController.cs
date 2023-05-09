@@ -63,11 +63,9 @@ namespace Event_manager_API.Controllers
         ///
         ///     To add a new follow follow this strcture
         ///     {
-        ///         "createdAt": "2023-05-07T02:57:19.824Z",
-        ///         "followname": "string",
-        ///         "email": "follow@example.com",
-        ///         "password": "string",
-        ///         "role": "string"
+        ///         "createdAt": "2023-05-09T03:05:01.100Z",
+        ///         "userId": 0,
+        ///         "adminId": 0
         ///     }
         ///
         /// </remarks>
@@ -76,6 +74,18 @@ namespace Event_manager_API.Controllers
 
         public async Task<ActionResult> Post([FromBody] FollowDTO followDTO)
         {
+            
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == followDTO.UserId);
+            if (!userExists)
+            {
+                return BadRequest("That User does not exist");
+            }
+
+            var adminExists = await dbContext.User.AnyAsync(x => (x.Id == followDTO.AdminId && x.Role == "admin"));
+            if (!adminExists)
+            {
+                return BadRequest("That Administrator does not exist");
+            }
             var follow = mapper.Map<Follow>(followDTO);
             dbContext.Add(follow);
             await dbContext.SaveChangesAsync();
@@ -94,11 +104,9 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update a follow follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-07T02:57:19.824Z",
-        ///         "followname": "string",
-        ///         "email": "follow@example.com",
-        ///         "password": "string",
-        ///         "role": "follow or admin"
+        ///         "createdAt": "2023-05-09T03:05:01.100Z",
+        ///         "userId": 0,
+        ///         "adminId": 0
         ///     }
         ///
         /// </remarks>

@@ -63,11 +63,11 @@ namespace Event_manager_API.Controllers
         ///
         ///     To add a new coupon follow this strcture
         ///     {
-        ///         "createdAt": "2023-05-07T02:57:19.824Z",
-        ///         "couponname": "string",
-        ///         "email": "coupon@example.com",
-        ///         "password": "string",
-        ///         "role": "string"
+        ///         "createdAt": "2023-05-09T02:43:40.454Z",
+        ///         "description": "string",
+        ///         "code": "string",
+        ///         "discountPercentage": 0,
+        ///         "eventId": 0
         ///     }
         ///
         /// </remarks>
@@ -76,6 +76,13 @@ namespace Event_manager_API.Controllers
 
         public async Task<ActionResult> Post([FromBody] CouponDTO couponDTO)
         {
+            
+            var eventExists = await dbContext.Event.AnyAsync(x => x.Id == couponDTO.EventId);
+            if (!eventExists)
+            {
+                return BadRequest("That Event does not exist");
+            }
+
             var coupon = mapper.Map<Coupon>(couponDTO);
             dbContext.Add(coupon);
             await dbContext.SaveChangesAsync();
@@ -94,11 +101,11 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update a coupon follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-07T02:57:19.824Z",
-        ///         "couponname": "string",
-        ///         "email": "coupon@example.com",
-        ///         "password": "string",
-        ///         "role": "coupon or admin"
+        ///         "createdAt": "2023-05-09T02:43:40.454Z",
+        ///         "description": "string",
+        ///         "code": "string",
+        ///         "discountPercentage": 0,
+        ///         "eventId": 0
         ///     }
         ///
         /// </remarks>
@@ -112,12 +119,12 @@ namespace Event_manager_API.Controllers
                 return NotFound("Does not exist");
             }
 
-            /*
-            var relationshipExists = await dbContext.Relationship.AnyAsync(x => x.Id == Table.RelationshipId);
-            if (!relationshipExists)
+            var eventExists = await dbContext.Event.AnyAsync(x => x.Id == couponDTO.EventId);
+            if (!eventExists)
             {
-                return BadRequest("Does relationship does not exist");
-            }*/
+                return BadRequest("That Event does not exist");
+            }
+
             var coupon = mapper.Map<Coupon>(couponDTO);
             coupon.Id = id;
             dbContext.Update(coupon);

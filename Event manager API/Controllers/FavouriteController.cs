@@ -63,11 +63,9 @@ namespace Event_manager_API.Controllers
         ///
         ///     To add a new favourite follow this strcture
         ///     {
-        ///         "createdAt": "2023-05-07T02:57:19.824Z",
-        ///         "favouritename": "string",
-        ///         "email": "favourite@example.com",
-        ///         "password": "string",
-        ///         "role": "string"
+        ///         "createdAt": "2023-05-09T03:02:49.829Z",
+        ///         "userId": 0,
+        ///         "eventId": 0
         ///     }
         ///
         /// </remarks>
@@ -76,6 +74,20 @@ namespace Event_manager_API.Controllers
 
         public async Task<ActionResult> Post([FromBody] FavouriteDTO favouriteDTO)
         {
+            
+            
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == favouriteDTO.UserId);
+            if (!userExists)
+            {
+                return BadRequest("That User does not exist");
+            }
+
+            var eventExists = await dbContext.User.AnyAsync(x => x.Id == favouriteDTO.EventId);
+            if (!eventExists)
+            {
+                return BadRequest("That Event does not exist");
+            }
+
             var favourite = mapper.Map<Favourite>(favouriteDTO);
             dbContext.Add(favourite);
             await dbContext.SaveChangesAsync();
@@ -94,11 +106,9 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update a favourite follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-07T02:57:19.824Z",
-        ///         "favouritename": "string",
-        ///         "email": "favourite@example.com",
-        ///         "password": "string",
-        ///         "role": "favourite or admin"
+        ///         "createdAt": "2023-05-09T03:02:49.829Z",
+        ///         "userId": 0,
+        ///         "eventId": 0
         ///     }
         ///
         /// </remarks>
@@ -112,12 +122,18 @@ namespace Event_manager_API.Controllers
                 return NotFound("Does not exist");
             }
 
-            /*
-            var relationshipExists = await dbContext.Relationship.AnyAsync(x => x.Id == Table.RelationshipId);
-            if (!relationshipExists)
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == favouriteDTO.UserId);
+            if (!userExists)
             {
-                return BadRequest("Does relationship does not exist");
-            }*/
+                return BadRequest("That User does not exist");
+            }
+
+            var eventExists = await dbContext.User.AnyAsync(x => x.Id == favouriteDTO.EventId);
+            if (!eventExists)
+            {
+                return BadRequest("That Event does not exist");
+            }
+
             var favourite = mapper.Map<Favourite>(favouriteDTO);
             favourite.Id = id;
             dbContext.Update(favourite);

@@ -63,12 +63,11 @@ namespace Event_manager_API.Controllers
         ///
         ///     To add a new location follow this strcture
         ///     {
-        ///         "createdAt": "2023-05-07T02:57:19.824Z",
-        ///         "locationname": "string",
-        ///         "email": "location@example.com",
-        ///         "password": "string",
-        ///         "role": "string"
-        ///     }
+        ///         "createdAt": "2023-05-09T03:13:39.510Z",
+        ///         "name": "string",
+        ///         "address": "string",
+        ///         "capacity": 0
+        ///      }
         ///
         /// </remarks>
 
@@ -94,12 +93,11 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update a location follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-07T02:57:19.824Z",
-        ///         "locationname": "string",
-        ///         "email": "location@example.com",
-        ///         "password": "string",
-        ///         "role": "location or admin"
-        ///     }
+        ///         "createdAt": "2023-05-09T03:13:39.510Z",
+        ///         "name": "string",
+        ///         "address": "string",
+        ///         "capacity": 0
+        ///      }
         ///
         /// </remarks>
 
@@ -112,12 +110,6 @@ namespace Event_manager_API.Controllers
                 return NotFound("Does not exist");
             }
 
-            /*
-            var relationshipExists = await dbContext.Relationship.AnyAsync(x => x.Id == Table.RelationshipId);
-            if (!relationshipExists)
-            {
-                return BadRequest("Does relationship does not exist");
-            }*/
             var location = mapper.Map<Location>(locationDTO);
             location.Id = id;
             dbContext.Update(location);

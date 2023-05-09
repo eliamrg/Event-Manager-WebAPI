@@ -63,11 +63,10 @@ namespace Event_manager_API.Controllers
         ///
         ///     To add a new form follow this strcture
         ///     {
-        ///         "createdAt": "2023-05-07T02:57:19.824Z",
-        ///         "formname": "string",
-        ///         "email": "form@example.com",
-        ///         "password": "string",
-        ///         "role": "string"
+        ///         "createdAt": "2023-05-09T03:05:49.215Z",
+        ///         "comment": 0,
+        ///         "userId": 0,
+        ///         "eventId": 0
         ///     }
         ///
         /// </remarks>
@@ -76,6 +75,18 @@ namespace Event_manager_API.Controllers
 
         public async Task<ActionResult> Post([FromBody] FormDTO formDTO)
         {
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == formDTO.UserId );
+            if (!userExists)
+            {
+                return BadRequest("That User does not exist");
+            }
+
+            var eventExists = await dbContext.Location.AnyAsync(x => x.Id == formDTO.EventId);
+            if (!eventExists)
+            {
+                return BadRequest("That Event does not exist");
+            }
+
             var form = mapper.Map<Form>(formDTO);
             dbContext.Add(form);
             await dbContext.SaveChangesAsync();
@@ -94,11 +105,10 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update a form follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-07T02:57:19.824Z",
-        ///         "formname": "string",
-        ///         "email": "form@example.com",
-        ///         "password": "string",
-        ///         "role": "form or admin"
+        ///         "createdAt": "2023-05-09T03:05:49.215Z",
+        ///         "comment": 0,
+        ///         "userId": 0,
+        ///         "eventId": 0
         ///     }
         ///
         /// </remarks>
@@ -112,12 +122,18 @@ namespace Event_manager_API.Controllers
                 return NotFound("Does not exist");
             }
 
-            /*
-            var relationshipExists = await dbContext.Relationship.AnyAsync(x => x.Id == Table.RelationshipId);
-            if (!relationshipExists)
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == formDTO.UserId);
+            if (!userExists)
             {
-                return BadRequest("Does relationship does not exist");
-            }*/
+                return BadRequest("That User does not exist");
+            }
+
+            var eventExists = await dbContext.Location.AnyAsync(x => x.Id == formDTO.EventId);
+            if (!eventExists)
+            {
+                return BadRequest("That Event does not exist");
+            }
+
             var form = mapper.Map<Form>(formDTO);
             form.Id = id;
             dbContext.Update(form);

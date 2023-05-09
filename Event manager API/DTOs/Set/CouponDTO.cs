@@ -27,6 +27,6 @@ namespace Event_manager_API.DTOs.Set
         //------Event
         [Required]
         public int EventId { get; set; }
-        public EventDTO Event { get; set; }
+        
     }
 }
