@@ -14,7 +14,7 @@ namespace Event_manager_API.DTOs.Set
         public string Description { get; set; }
         
         [Required]
-        [PasswordValidation]
+        
         public string Code { get; set; }
 
         [Required]

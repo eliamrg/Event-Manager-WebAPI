@@ -52,6 +52,21 @@ namespace Event_manager_API.Controllers
             return mapper.Map<GetCouponDTO>(coupon);
         }
 
+        //GET BY ID WITH TICKETS-------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get Coupon and Tickets list by Id.
+        /// </summary>
+        [HttpGet("Tickets/{id:int}")]
+        public async Task<ActionResult<GetCouponDTOwithTickets>> GetByIdList(int id)
+        {
+
+            var object_ = await dbContext.Coupon
+                .Include(DB => DB.Tickets)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetCouponDTOwithTickets>(object_);
+        }
+
 
         //POST---------------------------------------------------------------------------------------
 

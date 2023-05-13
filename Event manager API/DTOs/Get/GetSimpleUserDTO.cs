@@ -6,12 +6,9 @@ using Event_manager_API.Validations;
 
 namespace Event_manager_API.DTOs.Get
 {
-    public class GetUserDTO
+    public class GetSimpleUserDTO
     {
         public int Id { get; set; }
-        
-        [Required]
-        public DateTime CreatedAt { get; set; }
 
         [Required] //
         [StringLength(maximumLength: 30, ErrorMessage = "Max Lnegth is 30 Characters")]
@@ -22,13 +19,6 @@ namespace Event_manager_API.DTOs.Get
         [EmailAddress]
         public string Email { get; set; }
         
-        [Required]
-        [PasswordValidation]
-        public string Password { get; set; }
-        
-        [Required]
-        [ValidRole]
-        public string Role { get; set; }
 
     }
 }

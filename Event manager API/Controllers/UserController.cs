@@ -52,6 +52,65 @@ namespace Event_manager_API.Controllers
             return mapper.Map<GetUserDTO>(user);
         }
 
+        /// <summary>
+        /// Get User's Favourites by Id.
+        /// </summary>
+        [HttpGet("Favourites/{id:int}")]
+        public async Task<ActionResult<GetUserDTOwithFavourites>> GetByIdListFavourites(int id)
+        {
+            var object_ = await dbContext.User
+                .Include(DB => DB.Favourites)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetUserDTOwithFavourites>(object_);
+        }
+
+        /// <summary>
+        /// Get User's Followers by Id.
+        /// </summary>
+        [HttpGet("Followers/{id:int}")]
+        public async Task<ActionResult<GetUserDTOwithFollowers>> GetByIdListFollowers(int id)
+        {
+            var object_ = await dbContext.User
+                .Include(DB => DB.Followers)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetUserDTOwithFollowers>(object_);
+        }
+
+        /// <summary>
+        /// Get User's Following by Id.
+        /// </summary>
+        [HttpGet("Following/{id:int}")]
+        public async Task<ActionResult<GetUserDTOwithFollowing>> GetByIdListFollowing(int id)
+        {
+            var object_ = await dbContext.User
+                .Include(DB => DB.Following)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetUserDTOwithFollowing>(object_);
+        }
+
+        /// <summary>
+        /// Get User's Form Responses by Id.
+        /// </summary>
+        [HttpGet("Forms/{id:int}")]
+        public async Task<ActionResult<GetUserDTOwithForms>> GetByIdListForms(int id)
+        {
+            var object_ = await dbContext.User
+                .Include(DB => DB.FormResponses)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetUserDTOwithForms>(object_);
+        }
+
+        /// <summary>
+        /// Get User's Tickets by Id.
+        /// </summary>
+        [HttpGet("Tickets/{id:int}")]
+        public async Task<ActionResult<GetUserDTOwithTickets>> GetByIdListTickets(int id)
+        {
+            var object_ = await dbContext.User
+                .Include(DB => DB.Tickets)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetUserDTOwithTickets>(object_);
+        }
 
         //POST---------------------------------------------------------------------------------------
 

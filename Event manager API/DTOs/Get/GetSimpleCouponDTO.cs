@@ -5,28 +5,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Event_manager_API.DTOs.Get
 {
-    public class GetCouponDTO
+    public class GetSimpleCouponDTO
     {
         public int Id { get; set; }
-        [Required]
-        public DateTime CreatedAt { get; set; }
-
-        public string Description { get; set; }
-        
-        [Required]
-        
-        public string Code { get; set; }
+       
+ 
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
         public decimal DiscountPercentage { get; set; }
-
+        [Required]
+        public string Code { get; set; }
 
         //RELATIONSHIPS
 
         //------Event
         [Required]
         public int EventId { get; set; }
-        public GetEventDTO Event { get; set; }
+      
     }
 }

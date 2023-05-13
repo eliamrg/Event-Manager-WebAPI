@@ -40,16 +40,5 @@ namespace Event_manager_API.DTOs.Get
         public int LocationId { get; set; }
         public GetLocationDTO Location { get; set; }
         
-        //LISTS
-
-        //------Tickets
-        public List<GetTicketDTO> Tickets { get; set; }
-        
-        //------Coupons
-        public List<GetCouponDTO> Coupons { get; set; }
-        
-        //------Form
-        public List<GetFormDTO> FormResponses { get; set; }
-        
     }
 }

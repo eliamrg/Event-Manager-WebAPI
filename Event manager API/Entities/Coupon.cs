@@ -14,7 +14,6 @@ namespace Event_manager_API.Entities
         public string Description { get; set; }
         
         [Required]
-        [PasswordValidation]
         public string Code { get; set; }
 
         [Required]

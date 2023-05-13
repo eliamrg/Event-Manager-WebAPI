@@ -8,6 +8,10 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using Event_manager_API.Services;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Event_manager_API
 {
@@ -32,7 +36,13 @@ namespace Event_manager_API
 
             // Se encarga de configurar ApplicationDbContext como un servicio
             services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
+                {
+                    options.UseSqlServer(Configuration.GetConnectionString("defaultConnection"));
+                    options.ConfigureWarnings(warnings =>warnings.Ignore(CoreEventId.NavigationBaseIncludeIgnored));
+
+                }
+               
+            );
 
             //Transient da nueva instancia de la clase declarada,
             //sirve para funciones que ejecutan una funcionalidad y listo, sin tener
@@ -57,7 +67,17 @@ namespace Event_manager_API
             services.AddHostedService<WriteFile>();
             services.AddResponseCaching();
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+               .AddJwtBearer(opt => opt.TokenValidationParameters = new TokenValidationParameters
+               {
+                   ValidateIssuer = false,
+                   ValidateAudience = false,
+                   ValidateLifetime = true,
+                   ValidateIssuerSigningKey = true,
+                   IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["keyjwt"])),
+                   ClockSkew = TimeSpan.Zero
+               }
+           );
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
             {
@@ -77,6 +97,9 @@ namespace Event_manager_API
                 var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)

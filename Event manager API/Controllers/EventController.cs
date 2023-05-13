@@ -53,6 +53,43 @@ namespace Event_manager_API.Controllers
         }
 
 
+        /// <summary>
+        /// Get Event and coupons list by Id.
+        /// </summary>
+        [HttpGet("Coupons/{id:int}")]
+        public async Task<ActionResult<GetEventDTOwithCoupons>> GetByIdListCoupons(int id)
+        {
+
+            var object_ = await dbContext.Event
+                .Include(DB => DB.Coupons)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetEventDTOwithCoupons>(object_);
+        }
+
+        /// <summary>
+        /// Get Event and Form Responses by Id.
+        /// </summary>
+        [HttpGet("Forms/{id:int}")]
+        public async Task<ActionResult<GetEventDTOwithForms>> GetByIdListForms(int id)
+        {
+
+            var object_ = await dbContext.Event
+                .Include(DB => DB.FormResponses)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetEventDTOwithForms>(object_);
+        }
+        /// <summary>
+        /// Get Event and Tickets list by Id.
+        /// </summary>
+        [HttpGet("Tickets/{id:int}")]
+        public async Task<ActionResult<GetEventDTOwithTickets>> GetByIdListTickets(int id)
+        {
+
+            var object_ = await dbContext.Event
+                .Include(DB => DB.Tickets)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetEventDTOwithTickets>(object_);
+        }
         //POST---------------------------------------------------------------------------------------
 
         /// <summary>
