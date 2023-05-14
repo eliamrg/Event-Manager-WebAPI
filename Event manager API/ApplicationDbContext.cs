@@ -3,11 +3,12 @@ using System.Text.RegularExpressions;
 using Event_manager_API.Entities;
 using Microsoft.Extensions.Options;
 using System.Drawing;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Event_manager_API
 {
 #pragma warning disable CS1591
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {

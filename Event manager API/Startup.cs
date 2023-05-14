@@ -82,24 +82,62 @@ namespace Event_manager_API
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-                {
-                    Title = "Event Manager Api",
-                    Version = "",
-                    Description = "An ASP.NET Core Web API for managing Events.\n\n Developed by Santiago Ramirez & Miguel Sanchez.",
-
-                    Contact = new OpenApiContact
                     {
-                        Name = "Contact",
-                        Url = new Uri("https://eliamrg.github.io/PersonalWebSite/")
+                        Title = "Event Manager Api",
+                        Version = "",
+                        Description = "An ASP.NET Core Web API for managing Events.\n\n Developed by Santiago Ramirez & Miguel Sanchez.",
+
+                        Contact = new OpenApiContact
+                        {
+                            Name = "Contact",
+                            Url = new Uri("https://eliamrg.github.io/PersonalWebSite/")
+                        }
                     }
-                }
                 );
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name="Authorization",
+                    Type=SecuritySchemeType.ApiKey,
+                    Scheme="Bearer",
+                    BearerFormat="JWT",
+                    In=ParameterLocation.Header
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference=new OpenApiReference
+                            {
+                                Type=ReferenceType.SecurityScheme,
+                                Id="Bearer"
+                            }
+                        },
+                        new String[]{}
+                    }
+                });
+
                 var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+            services.AddAuthorization(opt =>
+            {
+                opt.AddPolicy("IsAdmin", policy => policy.RequireClaim("IsAdmin"));
+                opt.AddPolicy("IsUser", policy => policy.RequireClaim("IsUser"));
+            });
+            services.AddCors(opt =>
+            {
+                opt.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins("https://apirequest.io").AllowAnyMethod().AllowAnyHeader();
+                    builder.WithOrigins("https://google.com").AllowAnyMethod().AllowAnyHeader();
+                });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
