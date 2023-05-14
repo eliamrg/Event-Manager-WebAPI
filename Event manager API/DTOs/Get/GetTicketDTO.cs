@@ -14,8 +14,7 @@ namespace Event_manager_API.DTOs.Get
         [Column(TypeName = "decimal(18,2)")]
         public decimal TicketPrice { get; set; } //Can or not have discount depending if user has a coupon
         
-        [Required]
-        public int Quantity { get; set; }
+        
 
         //RELATIONSHIPS
 

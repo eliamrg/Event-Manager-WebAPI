@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Event_manager_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230509040337_Initial-Migration")]
+    [Migration("20230514000110_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -221,9 +221,6 @@ namespace Event_manager_API.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("EventId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<decimal>("TicketPrice")

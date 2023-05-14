@@ -64,8 +64,6 @@ namespace Event_manager_API.Controllers
         ///     To add a new ticket follow this strcture
         ///     {
         ///         "createdAt": "2023-05-09T03:15:01.473Z",
-        ///         "ticketPrice": 0,
-        ///         "quantity": 0,
         ///         "userId": 0,
         ///         "eventId": 0,
         ///         "couponId": 0
@@ -127,8 +125,6 @@ namespace Event_manager_API.Controllers
         ///     To Update ticket follow this strcture, and specify id
         ///     {
         ///         "createdAt": "2023-05-09T03:15:01.473Z",
-        ///         "ticketPrice": 0,
-        ///         "quantity": 0,
         ///         "userId": 0,
         ///         "eventId": 0,
         ///         "couponId": 0

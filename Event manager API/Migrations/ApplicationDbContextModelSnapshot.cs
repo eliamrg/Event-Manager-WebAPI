@@ -220,9 +220,6 @@ namespace Event_manager_API.Migrations
                     b.Property<int>("EventId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("TicketPrice")
                         .HasColumnType("decimal(18,2)");
 

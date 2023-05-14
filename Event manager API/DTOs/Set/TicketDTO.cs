@@ -12,8 +12,7 @@ namespace Event_manager_API.DTOs.Set
 
         
         
-        [Required]
-        public int Quantity { get; set; }
+        
 
         //RELATIONSHIPS
 

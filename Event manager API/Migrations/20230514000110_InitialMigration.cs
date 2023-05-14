@@ -187,7 +187,6 @@ namespace Event_manager_API.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TicketPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     EventId = table.Column<int>(type: "int", nullable: false),
                     CouponId = table.Column<int>(type: "int", nullable: false)
