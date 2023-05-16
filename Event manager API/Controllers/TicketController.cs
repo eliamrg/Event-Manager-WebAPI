@@ -1,17 +1,33 @@
-﻿using Event_manager_API.Entities;
+﻿using AutoMapper;
+using Event_manager_API.DTOs.Get;
+using Event_manager_API.DTOs.Set;
+using Event_manager_API.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+
 
 namespace Event_manager_API.Controllers
 {
     [ApiController]
     [Route("Ticket")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
     public class TicketController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        public TicketController(ApplicationDbContext context)
+        private readonly ILogger<TicketController> logger;
+        private readonly IMapper mapper;
+        public TicketController(
+                    ApplicationDbContext context,
+                    ILogger<TicketController> logger,
+                    IMapper mapper
+               )
         {
             this.dbContext = context;
+            this.logger = logger;
+            this.mapper = mapper;
         }
 
         //GET ALL--------------------------------------------------------------------------------
@@ -20,9 +36,11 @@ namespace Event_manager_API.Controllers
         /// Get a list of Tickets.
         /// </summary>
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<Ticket>>> GetAll()
+        public async Task<ActionResult<List<GetTicketDTO>>> GetAll()
         {
-            return await dbContext.Ticket.ToListAsync();
+            logger.LogInformation("Getting Ticket List");
+            var ticket = await dbContext.Ticket.ToListAsync();
+            return mapper.Map<List<GetTicketDTO>>(ticket);
         }
 
         //GET BY ID-------------------------------------------------------------------------------
@@ -31,9 +49,10 @@ namespace Event_manager_API.Controllers
         /// Get Ticket by Id.
         /// </summary>
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Ticket>> GetById(int id)
+        public async Task<ActionResult<GetTicketDTO>> GetById(int id)
         {
-            return await dbContext.Ticket.FirstOrDefaultAsync(x => x.Id == id);
+            var ticket = await dbContext.Ticket.FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetTicketDTO>(ticket);
         }
 
 
@@ -42,35 +61,59 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Add a Ticket.
         /// </summary>
-        /// <param name="ticket"></param>
-        /// <returns>A newly created Ticket</returns>
         /// <remarks>
         /// Sample request:
         ///
         ///     To add a new ticket follow this strcture
         ///     {
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "userId": 0,
+        ///         "eventId": 0,
+        ///         "couponId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
+        
         [HttpPost]
-
-        public async Task<ActionResult> Post(Ticket ticket)
+        [AllowAnonymous]
+        public async Task<ActionResult> Post([FromBody] TicketDTO ticketDTO)
         {
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == celular.MarcaID);
-            if (!existeMarca)
+
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == ticketDTO.UserId);
+            if (!userExists)
             {
-                return BadRequest("Does not exist");
+                return BadRequest("That User does not exist");
             }
-            */
+
+            var eventExists = await dbContext.Event.FirstOrDefaultAsync(x => x.Id == ticketDTO.EventId);
+            if (eventExists!=null)
+            {
+                return BadRequest("That Event does not exist");
+            }
+
+            //GET TICKET PRICE
+            decimal ticketPrice = eventExists.TicketPrice;
+           
+            
+            if (ticketDTO.CouponId != 0)
+            {
+                var couponExists = await dbContext.Coupon.FirstOrDefaultAsync(x => x.Id == ticketDTO.CouponId);
+                if (couponExists != null)
+                {
+                    return BadRequest("That Coupon does not exist");
+                }
+
+                //CALCULATE TICKET PRICE IN CASE COUPON EXISTS
+                
+                ticketPrice = eventExists.TicketPrice - (eventExists.TicketPrice * couponExists.DiscountPercentage);
+            }
+
+            var ticket = mapper.Map<Ticket>(ticketDTO);
+            ticket.TicketPrice = ticketPrice;
+            ticket.CreatedAt= DateTime.Now;
             dbContext.Add(ticket);
-
             await dbContext.SaveChangesAsync();
-
             return Ok();
         }
 
@@ -78,39 +121,66 @@ namespace Event_manager_API.Controllers
         //UPDATE------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Update a Ticket.
+        /// Update Ticket.
         /// </summary>
-        /// <param name="ticket"></param>
-        /// <param name="id"></param>
         /// <returns>A newly created Ticket</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To Update a ticket follow this strcture, and specify id
+        ///     To Update ticket follow this strcture, and specify id
         ///     {
-        ///        "Id": "1",
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "userId": 0,
+        ///         "eventId": 0,
+        ///         "couponId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Ticket ticket, int id)
+        public async Task<ActionResult> PutTicket(TicketDTO ticketDTO, [FromRoute] int id)
         {
-            if (ticket.Id != id)
+            var exists = await dbContext.Ticket.AnyAsync(x => x.Id == id);
+            if (!exists)
             {
-                return BadRequest("The Id does not match the one established in the URL.");
+                return NotFound("Does not exist");
             }
 
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == event_.MarcaID);
-            if (!existeMarca)
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == ticketDTO.UserId);
+            if (!userExists)
             {
-                return BadRequest("Does not exist");
-            }*/
+                return BadRequest("That User does not exist");
+            }
 
+            var eventExists = await dbContext.Event.FirstOrDefaultAsync(x => x.Id == ticketDTO.EventId);
+            if (eventExists != null)
+            {
+                return BadRequest("That Event does not exist");
+            }
+
+            //GET TICKET PRICE
+            decimal ticketPrice = eventExists.TicketPrice;
+
+
+            if (ticketDTO.CouponId != 0)
+            {
+                var couponExists = await dbContext.Coupon.FirstOrDefaultAsync(x => x.Id == ticketDTO.CouponId);
+                if (couponExists != null)
+                {
+                    return BadRequest("That Coupon does not exist");
+                }
+
+                //CALCULATE TICKET PRICE IN CASE COUPON EXISTS
+
+                ticketPrice = eventExists.TicketPrice - (eventExists.TicketPrice * couponExists.DiscountPercentage);
+            }
+
+
+
+            var ticket = mapper.Map<Ticket>(ticketDTO);
+            ticket.TicketPrice = ticketPrice;
+            ticket.Id = id;
+            ticket.CreatedAt = DateTime.Now;
             dbContext.Update(ticket);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -119,8 +189,10 @@ namespace Event_manager_API.Controllers
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Delete Ticket by Id.
+        /// Delete Ticket.
         /// </summary>
+        /// 
+
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
@@ -128,7 +200,7 @@ namespace Event_manager_API.Controllers
             var exist = await dbContext.Ticket.AnyAsync(x => x.Id == id);
             if (!exist)
             {
-                return NotFound("Not found in the database");
+                return NotFound();
             }
             dbContext.Remove(new Ticket()
             { Id = id, }
@@ -136,5 +208,9 @@ namespace Event_manager_API.Controllers
             await dbContext.SaveChangesAsync();
             return Ok();
         }
+
+
+
+        
     }
 }

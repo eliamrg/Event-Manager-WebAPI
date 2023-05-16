@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Event_manager_API.Entities
@@ -6,18 +7,24 @@ namespace Event_manager_API.Entities
     public class Ticket
     {
         public int Id { get; set; }
-        public DateTime createdAt { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+
+        
         [Column(TypeName = "decimal(18,2)")]
         public decimal TicketPrice { get; set; } //Can or not have discount depending if user has a coupon
-        public int Quantity { get; set; }
+        
+       
 
         //RELATIONSHIPS
 
         //------User
+        [Required]
         public int UserId { get; set; }
-        public User User { get; set; }
+        public ApplicationUser User { get; set; }
 
         //------Event
+        [Required]
         public int EventId { get; set; }
         public Event Event { get; set; }
         

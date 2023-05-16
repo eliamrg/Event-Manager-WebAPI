@@ -1,6 +1,11 @@
-﻿using Event_manager_API.Entities;
+﻿using AutoMapper;
+using Event_manager_API.DTOs.Get;
+using Event_manager_API.DTOs.Set;
+using Event_manager_API.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+
 
 namespace Event_manager_API.Controllers
 {
@@ -9,9 +14,17 @@ namespace Event_manager_API.Controllers
     public class FollowController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        public FollowController(ApplicationDbContext context)
+        private readonly ILogger<FollowController> logger;
+        private readonly IMapper mapper;
+        public FollowController(
+                    ApplicationDbContext context,
+                    ILogger<FollowController> logger,
+                    IMapper mapper
+               )
         {
             this.dbContext = context;
+            this.logger = logger;
+            this.mapper = mapper;
         }
 
         //GET ALL--------------------------------------------------------------------------------
@@ -20,9 +33,11 @@ namespace Event_manager_API.Controllers
         /// Get a list of Follows.
         /// </summary>
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<Follow>>> GetAll()
+        public async Task<ActionResult<List<GetFollowDTO>>> GetAll()
         {
-            return await dbContext.Follow.ToListAsync();
+            logger.LogInformation("Getting Follow List");
+            var follow = await dbContext.Follow.ToListAsync();
+            return mapper.Map<List<GetFollowDTO>>(follow);
         }
 
         //GET BY ID-------------------------------------------------------------------------------
@@ -31,9 +46,10 @@ namespace Event_manager_API.Controllers
         /// Get Follow by Id.
         /// </summary>
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Follow>> GetById(int id)
+        public async Task<ActionResult<GetFollowDTO>> GetById(int id)
         {
-            return await dbContext.Follow.FirstOrDefaultAsync(x => x.Id == id);
+            var follow = await dbContext.Follow.FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetFollowDTO>(follow);
         }
 
 
@@ -42,35 +58,38 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Add a Follow.
         /// </summary>
-        /// <param name="follow"></param>
-        /// <returns>A newly created Follow</returns>
         /// <remarks>
         /// Sample request:
         ///
         ///     To add a new follow follow this strcture
         ///     {
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "userId": 0,
+        ///         "adminId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPost]
 
-        public async Task<ActionResult> Post(Follow follow)
+        public async Task<ActionResult> Post([FromBody] FollowDTO followDTO)
         {
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == celular.MarcaID);
-            if (!existeMarca)
+            
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == followDTO.UserId);
+            if (!userExists)
             {
-                return BadRequest("Does not exist");
+                return BadRequest("That User does not exist");
             }
-            */
+
+            var adminExists = await dbContext.User.AnyAsync(x => (x.Id == followDTO.AdminId && x.Role == "admin"));
+            if (!adminExists)
+            {
+                return BadRequest("That Administrator does not exist");
+            }
+            var follow = mapper.Map<Follow>(followDTO);
+            follow.CreatedAt = DateTime.Now;
             dbContext.Add(follow);
-
             await dbContext.SaveChangesAsync();
-
             return Ok();
         }
 
@@ -78,39 +97,40 @@ namespace Event_manager_API.Controllers
         //UPDATE------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Update a Follow.
+        /// Update Follow.
         /// </summary>
-        /// <param name="follow"></param>
-        /// <param name="id"></param>
         /// <returns>A newly created Follow</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To Update a follow follow this strcture, and specify id
+        ///     To Update follow follow this strcture, and specify id
         ///     {
-        ///        "Id": "1",
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "createdAt": "2023-05-09T03:05:01.100Z",
+        ///         "userId": 0,
+        ///         "adminId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Follow follow, int id)
+        public async Task<ActionResult> PutFollow(FollowDTO followDTO, [FromRoute] int id)
         {
-            if (follow.Id != id)
+            var exists = await dbContext.Follow.AnyAsync(x => x.Id == id);
+            if (!exists)
             {
-                return BadRequest("The Id does not match the one established in the URL.");
+                return NotFound("Does not exist");
             }
 
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == event_.MarcaID);
-            if (!existeMarca)
+            /*
+            var relationshipExists = await dbContext.Relationship.AnyAsync(x => x.Id == Table.RelationshipId);
+            if (!relationshipExists)
             {
-                return BadRequest("Does not exist");
+                return BadRequest("Does relationship does not exist");
             }*/
-
+            var follow = mapper.Map<Follow>(followDTO);
+            follow.Id = id;
+            follow.CreatedAt = DateTime.Now;
             dbContext.Update(follow);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -119,8 +139,10 @@ namespace Event_manager_API.Controllers
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Delete Follow by Id.
+        /// Delete Follow.
         /// </summary>
+        /// 
+
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
@@ -128,7 +150,7 @@ namespace Event_manager_API.Controllers
             var exist = await dbContext.Follow.AnyAsync(x => x.Id == id);
             if (!exist)
             {
-                return NotFound("Not found in the database");
+                return NotFound();
             }
             dbContext.Remove(new Follow()
             { Id = id, }

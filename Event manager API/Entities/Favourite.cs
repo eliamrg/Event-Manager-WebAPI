@@ -1,21 +1,25 @@
-﻿namespace Event_manager_API.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Event_manager_API.Entities
 {
     public class Favourite
     {
-        private int eventId;
-
         public int Id { get; set; }
-        public DateTime createdAt { get; set; }
+
+       
+        public DateTime CreatedAt { get; set; }
 
 
         //RELATIONSHIPS
 
         ///------User
+        [Required]
         public int UserId { get; set; }
-        public User User { get; set; }
+        public ApplicationUser User { get; set; }
 
         //------Event
-        public int EventId { get => eventId; set => eventId = value; }
+        [Required]
+        public int EventId { get; set; }
         public Event Event { get; set; }
 
 

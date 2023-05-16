@@ -3,11 +3,12 @@ using System.Text.RegularExpressions;
 using Event_manager_API.Entities;
 using Microsoft.Extensions.Options;
 using System.Drawing;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Event_manager_API
 {
 #pragma warning disable CS1591
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
@@ -15,7 +16,7 @@ namespace Event_manager_API
         }
         public DbSet<Event> Event { get; set; }
         public DbSet<Location> Location { get; set; }
-        public DbSet<User> User { get; set; }
+        public DbSet<ApplicationUser> User { get; set; }
         public DbSet<Form> Form { get; set; }
         public DbSet<Ticket> Ticket { get; set; }
         public DbSet<Coupon> Coupon { get; set; }
@@ -42,14 +43,14 @@ namespace Event_manager_API
 
             //DISABLE CASCADE DELETING
             modelBuilder.Entity<Favourite>()
-                .HasOne<User>(s => s.User)
+                .HasOne<ApplicationUser>(s => s.User)
                 .WithMany(f => f.Favourites)
                 .HasForeignKey(u => u.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
 
             modelBuilder.Entity<Form>()
-                .HasOne<User>(s => s.User)
+                .HasOne<ApplicationUser>(s => s.User)
                 .WithMany(f => f.FormResponses)
                 .HasForeignKey(u => u.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -61,7 +62,7 @@ namespace Event_manager_API
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Ticket>()
-                .HasOne<User>(s => s.User)
+                .HasOne<ApplicationUser>(s => s.User)
                 .WithMany(f => f.Tickets)
                 .HasForeignKey(u => u.UserId)
                 .OnDelete(DeleteBehavior.Restrict);

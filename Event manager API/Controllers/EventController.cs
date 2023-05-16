@@ -1,18 +1,33 @@
-﻿using Event_manager_API.Entities;
+﻿using AutoMapper;
+using Event_manager_API.DTOs.Get;
+using Event_manager_API.DTOs.Set;
+using Event_manager_API.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+
+
 namespace Event_manager_API.Controllers
 {
-    
     [ApiController]
     [Route("Event")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
     public class EventController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        public EventController(ApplicationDbContext context)
+        private readonly ILogger<EventController> logger;
+        private readonly IMapper mapper;
+        public EventController(
+                    ApplicationDbContext context,
+                    ILogger<EventController> logger,
+                    IMapper mapper
+               )
         {
             this.dbContext = context;
+            this.logger = logger;
+            this.mapper = mapper;
         }
 
         //GET ALL--------------------------------------------------------------------------------
@@ -20,11 +35,12 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Get a list of Events.
         /// </summary>
-        
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<Event>>> GetAll()
+        public async Task<ActionResult<List<GetEventDTO>>> GetAll()
         {
-            return await dbContext.Event.ToListAsync();
+            logger.LogInformation("Getting Event List");
+            var event_ = await dbContext.Event.ToListAsync();
+            return mapper.Map<List<GetEventDTO>>(event_);
         }
 
         //GET BY ID-------------------------------------------------------------------------------
@@ -32,48 +48,95 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Get Event by Id.
         /// </summary>
-        
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Event>> GetById(int id)
+        public async Task<ActionResult<GetEventDTO>> GetById(int id)
         {
-            return await dbContext.Event.FirstOrDefaultAsync(x => x.Id == id);
+            var event_ = await dbContext.Event.FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetEventDTO>(event_);
         }
 
 
+        /// <summary>
+        /// Get Event and coupons list by Id.
+        /// </summary>
+        [HttpGet("Coupons/{id:int}")]
+        public async Task<ActionResult<GetEventDTOwithCoupons>> GetByIdListCoupons(int id)
+        {
+
+            var object_ = await dbContext.Event
+                .Include(DB => DB.Coupons)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetEventDTOwithCoupons>(object_);
+        }
+
+        /// <summary>
+        /// Get Event and Form Responses by Id.
+        /// </summary>
+        [HttpGet("Forms/{id:int}")]
+        public async Task<ActionResult<GetEventDTOwithForms>> GetByIdListForms(int id)
+        {
+
+            var object_ = await dbContext.Event
+                .Include(DB => DB.FormResponses)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetEventDTOwithForms>(object_);
+        }
+        /// <summary>
+        /// Get Event and Tickets list by Id.
+        /// </summary>
+        [HttpGet("Tickets/{id:int}")]
+        public async Task<ActionResult<GetEventDTOwithTickets>> GetByIdListTickets(int id)
+        {
+
+            var object_ = await dbContext.Event
+                .Include(DB => DB.Tickets)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetEventDTOwithTickets>(object_);
+        }
         //POST---------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Add an Event.
+        /// Add a Event.
         /// </summary>
-        /// <param name="event_"></param>
-        /// <returns>A newly created Event</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To add a new Event follow this strcture
+        ///     To add a new event_ follow this strcture
         ///     {
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "name": "string",
+        ///         "description": "string",
+        ///         "ticketPrice": 0,
+        ///         "eventCapacity": 0,
+        ///         "date": "2023-05-09T02:48:00.083Z",
+        ///         "adminId": 0,
+        ///         "locationId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
-        /// 
 
         [HttpPost]
-        public async Task<ActionResult> Post(Event event_)
+
+        public async Task<ActionResult> Post([FromBody] EventDTO event_DTO)
         {
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == celular.MarcaID);
-            if (!existeMarca)
+            
+
+            var adminExists = await dbContext.User.AnyAsync(x => (x.Id == event_DTO.AdminId && x.Role=="admin"));
+            if (!adminExists)
             {
-                return BadRequest("Does not exist");
+                return BadRequest("That Administrator does not exist");
             }
-            */
+
+            var locationExists = await dbContext.Location.AnyAsync(x => x.Id == event_DTO.LocationId );
+            if (!locationExists)
+            {
+                return BadRequest("That Location does not exist");
+            }
+
+            var event_ = mapper.Map<Event>(event_DTO);
+            event_.CreatedAt = DateTime.Now;
             dbContext.Add(event_);
-
             await dbContext.SaveChangesAsync();
-
             return Ok();
         }
 
@@ -81,40 +144,50 @@ namespace Event_manager_API.Controllers
         //UPDATE------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Update an Event.
+        /// Update Event.
         /// </summary>
-        /// <param name="event_"></param>
-        /// <param name="id"></param>
         /// <returns>A newly created Event</returns>
         /// <remarks>
         /// Sample request:
         ///
-        ///     To Update an Event follow this strcture, and specify id
+        ///     To Update event_ follow this strcture, and specify id
         ///     {
-        ///        "Id": "1",
-        ///        "createdAt": "2023-05-06T18:01:53.212Z",
-        ///        "name": "Arena Monterrey",
-        ///        "address": "Av. Francisco I. Madero 2500, Centro, 64010 Monterrey, N.L.",
-        ///        "capacity": "0"
+        ///         "name": "string",
+        ///         "description": "string",
+        ///         "ticketPrice": 0,
+        ///         "eventCapacity": 0,
+        ///         "date": "2023-05-09T02:48:00.083Z",
+        ///         "adminId": 0,
+        ///         "locationId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
-        /// 
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Event event_, int id)
+        public async Task<ActionResult> PutEvent(EventDTO event_DTO, [FromRoute] int id)
         {
-            if (event_.Id != id)
+            var exists = await dbContext.Event.AnyAsync(x => x.Id == id);
+            if (!exists)
             {
-                return BadRequest("The Id does not match the one established in the URL.");
+                return NotFound();
             }
 
-            /*var existeMarca = await dbContext.Marca.AnyAsync(x => x.Id == event_.MarcaID);
-            if (!existeMarca)
+            var adminExists = await dbContext.User.AnyAsync(x => (x.Id == event_DTO.AdminId && x.Role == "admin"));
+            if (!adminExists)
             {
-                return BadRequest("Does not exist");
-            }*/
+                return BadRequest("That Administrator does not exist");
+            }
 
+            var locationExists = await dbContext.Location.AnyAsync(x => x.Id == event_DTO.LocationId);
+            if (!locationExists)
+            {
+                return BadRequest("That Location does not exist");
+            }
+
+            var event_ = mapper.Map<Event>(event_DTO);
+            event_.Id = id;
+            event_.CreatedAt = DateTime.Now;
             dbContext.Update(event_);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -123,9 +196,10 @@ namespace Event_manager_API.Controllers
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Delete Event by Id.
+        /// Delete Event.
         /// </summary>
         /// 
+
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
@@ -133,7 +207,7 @@ namespace Event_manager_API.Controllers
             var exist = await dbContext.Event.AnyAsync(x => x.Id == id);
             if (!exist)
             {
-                return NotFound("Not found in the database");
+                return NotFound();
             }
             dbContext.Remove(new Event()
             { Id = id, }
