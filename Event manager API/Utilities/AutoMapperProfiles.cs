@@ -2,6 +2,7 @@
 using Event_manager_API.DTOs.Get;
 using Event_manager_API.DTOs.Set;
 using Event_manager_API.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace Event_manager_API.Utilities
 {
@@ -18,7 +19,7 @@ namespace Event_manager_API.Utilities
             CreateMap<FormDTO, Form>();
             CreateMap<LocationDTO, Location>();
             CreateMap<TicketDTO, Ticket>();
-            CreateMap<UserDTO, User>();
+            CreateMap<ApplicationUserDTO, ApplicationUser>();
 
 
             //DTO GET
@@ -51,19 +52,19 @@ namespace Event_manager_API.Utilities
             CreateMap<Ticket, GetTicketDTO>();
 
             //----------------------------------------------------------------------------------
-            CreateMap<User, GetUserDTO>();
-            CreateMap<User, GetUserDTOwithFavourites>()
+            CreateMap<ApplicationUser, GetUserDTO>();
+            CreateMap<ApplicationUser, GetUserDTOwithFavourites>()
                 .ForMember(DTO => DTO.Favourites, opt => opt.MapFrom(MapGetUserDTOwithFavourites));
-            CreateMap<User, GetUserDTOwithFollowers>()
+            CreateMap<ApplicationUser, GetUserDTOwithFollowers>()
                 .ForMember(DTO => DTO.Followers, opt => opt.MapFrom(MapGetUserDTOwithFollowers));
-            CreateMap<User, GetUserDTOwithFollowing>()
+            CreateMap<ApplicationUser, GetUserDTOwithFollowing>()
                 .ForMember(DTO => DTO.Following, opt => opt.MapFrom(MapGetUserDTOwithFollowing));
-            CreateMap<User, GetUserDTOwithForms>()
+            CreateMap<ApplicationUser, GetUserDTOwithForms>()
                 .ForMember(DTO => DTO.FormResponses, opt => opt.MapFrom(MapGetUserDTOwithForms));
-            CreateMap<User, GetUserDTOwithTickets>()
+            CreateMap<ApplicationUser, GetUserDTOwithTickets>()
                 .ForMember(DTO => DTO.Tickets, opt => opt.MapFrom(MapGetUserDTOwithTickets));
 
-
+            CreateMap<IdentityUser, GetIdentityUserDTO>();
         }
         //MAPPERS--------------------------------------------------------------------------------------------------
 
@@ -179,7 +180,7 @@ namespace Event_manager_API.Utilities
         }
 
         //---------------------------------------------------------------------------------------------------------------------
-        private List<GetFavouriteDTO> MapGetUserDTOwithFavourites(User entity, GetUserDTO getlocationDTO)
+        private List<GetFavouriteDTO> MapGetUserDTOwithFavourites(ApplicationUser entity, GetUserDTO getlocationDTO)
         {
             var result = new List<GetFavouriteDTO>();
             if (entity.Favourites == null)
@@ -200,7 +201,7 @@ namespace Event_manager_API.Utilities
             return result;
         }
 
-        private List<GetFollowDTO> MapGetUserDTOwithFollowers(User entity, GetUserDTO getlocationDTO)
+        private List<GetFollowDTO> MapGetUserDTOwithFollowers(ApplicationUser entity, GetUserDTO getlocationDTO)
         {
             var result = new List<GetFollowDTO>();
             if (entity.Followers == null)
@@ -221,7 +222,7 @@ namespace Event_manager_API.Utilities
             return result;
         }
 
-        private List<GetFollowDTO> MapGetUserDTOwithFollowing(User entity, GetUserDTO getlocationDTO)
+        private List<GetFollowDTO> MapGetUserDTOwithFollowing(ApplicationUser entity, GetUserDTO getlocationDTO)
         {
             var result = new List<GetFollowDTO>();
             if (entity.Following == null)
@@ -242,7 +243,7 @@ namespace Event_manager_API.Utilities
             return result;
         }
 
-        private List<GetFormDTO> MapGetUserDTOwithForms(User entity, GetUserDTO getlocationDTO)
+        private List<GetFormDTO> MapGetUserDTOwithForms(ApplicationUser entity, GetUserDTO getlocationDTO)
         {
             var result = new List<GetFormDTO>();
             if (entity.FormResponses == null)
@@ -263,7 +264,7 @@ namespace Event_manager_API.Utilities
             }
             return result;
         }
-        private List<GetSimpleTicketDTO> MapGetUserDTOwithTickets(User entity, GetUserDTO getlocationDTO)
+        private List<GetSimpleTicketDTO> MapGetUserDTOwithTickets(ApplicationUser entity, GetUserDTO getlocationDTO)
         {
             var result = new List<GetSimpleTicketDTO>();
             if (entity.Tickets == null)

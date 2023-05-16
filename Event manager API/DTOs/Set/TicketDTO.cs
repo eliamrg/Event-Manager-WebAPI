@@ -7,8 +7,7 @@ namespace Event_manager_API.DTOs.Set
     public class TicketDTO
     {
         
-        [Required]
-        public DateTime CreatedAt { get; set; }
+        
 
         
         

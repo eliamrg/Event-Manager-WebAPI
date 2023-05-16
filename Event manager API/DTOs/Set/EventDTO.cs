@@ -9,8 +9,7 @@ namespace Event_manager_API.DTOs.Set
     public class EventDTO
     {
         
-        [Required]
-        public DateTime CreatedAt { get; set; }
+        
         [Required] 
         [FirstLetterUppercase]
         public string Name { get; set; }

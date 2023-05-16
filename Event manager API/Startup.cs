@@ -142,6 +142,7 @@ namespace Event_manager_API
                 options.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV2
             );
             //services.AddDefaultIdentity(options => options.SignIn.RequireConfirmedAccount = true);
+            services.AddControllers().AddNewtonsoftJson();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)

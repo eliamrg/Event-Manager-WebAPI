@@ -6,7 +6,7 @@ namespace Event_manager_API.Entities
     {
         public int Id { get; set; }
 
-        [Required]
+       
         public DateTime CreatedAt { get; set; }
 
 
@@ -15,7 +15,7 @@ namespace Event_manager_API.Entities
         ///------User
         [Required]
         public int UserId { get; set; }
-        public User User { get; set; }
+        public ApplicationUser User { get; set; }
 
         //------Event
         [Required]

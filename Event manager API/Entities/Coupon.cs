@@ -8,7 +8,7 @@ namespace Event_manager_API.Entities
     public class Coupon
     {
         public int Id { get; set; }
-        [Required]
+        
         public DateTime CreatedAt { get; set; }
 
         public string Description { get; set; }

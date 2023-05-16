@@ -40,12 +40,13 @@ namespace Event_manager_API.Services
         }
         private void Escribir(string msg)
         {
+            string ex = "";
             try {
                 var rute = $@"{env.ContentRootPath}wwwroot\{FileName}";
 
                 using (StreamWriter writer = new StreamWriter(rute, append: true)) { writer.WriteLine(msg); }
             }
-            catch(Exception e) { }
+            catch(Exception e) { ex = e.ToString(); }
             
         }
 

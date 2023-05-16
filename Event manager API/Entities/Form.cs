@@ -5,7 +5,7 @@ namespace Event_manager_API.Entities
     public class Form
     {
         public int Id { get; set; }
-        [Required] 
+        
         public DateTime CreatedAt { get; set; }
         [Required]
         public int Comment { get; set; }
@@ -15,7 +15,7 @@ namespace Event_manager_API.Entities
         //------User
         [Required]
         public int UserId { get; set; }
-        public User User { get; set; }
+        public ApplicationUser User { get; set; }
 
         //------Event
         [Required]

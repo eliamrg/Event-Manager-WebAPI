@@ -2,6 +2,8 @@
 using Event_manager_API.DTOs.Get;
 using Event_manager_API.DTOs.Set;
 using Event_manager_API.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +13,7 @@ namespace Event_manager_API.Controllers
 {
     [ApiController]
     [Route("Ticket")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
     public class TicketController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
@@ -63,16 +66,17 @@ namespace Event_manager_API.Controllers
         ///
         ///     To add a new ticket follow this strcture
         ///     {
-        ///         "createdAt": "2023-05-09T03:15:01.473Z",
         ///         "userId": 0,
         ///         "eventId": 0,
         ///         "couponId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
+        
         [HttpPost]
-
+        [AllowAnonymous]
         public async Task<ActionResult> Post([FromBody] TicketDTO ticketDTO)
         {
 
@@ -107,6 +111,7 @@ namespace Event_manager_API.Controllers
 
             var ticket = mapper.Map<Ticket>(ticketDTO);
             ticket.TicketPrice = ticketPrice;
+            ticket.CreatedAt= DateTime.Now;
             dbContext.Add(ticket);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -124,12 +129,12 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update ticket follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-09T03:15:01.473Z",
         ///         "userId": 0,
         ///         "eventId": 0,
         ///         "couponId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPut("{id:int}")]
@@ -175,6 +180,7 @@ namespace Event_manager_API.Controllers
             var ticket = mapper.Map<Ticket>(ticketDTO);
             ticket.TicketPrice = ticketPrice;
             ticket.Id = id;
+            ticket.CreatedAt = DateTime.Now;
             dbContext.Update(ticket);
             await dbContext.SaveChangesAsync();
             return Ok();

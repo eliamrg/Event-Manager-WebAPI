@@ -5,8 +5,7 @@ namespace Event_manager_API.DTOs.Set
     public class FormDTO
     {
         
-        [Required] 
-        public DateTime CreatedAt { get; set; }
+        
         [Required]
         public int Comment { get; set; }
 

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Event_manager_API.DTOs.Auth;
 using Event_manager_API.DTOs.Get;
 using Event_manager_API.DTOs.Set;
 using Event_manager_API.Entities;
@@ -13,7 +14,7 @@ namespace Event_manager_API.Controllers
 {
     [ApiController]
     [Route("Coupon")]
-    [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Policy ="IsAdmin")]
+    
     public class CouponController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
@@ -36,11 +37,11 @@ namespace Event_manager_API.Controllers
         /// Get a list of Coupons.
         /// </summary>
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<GetCouponDTO>>> GetAll()
+        public async Task<ActionResult<List<GetSimpleCouponDTO>>> GetAll()
         {
             logger.LogInformation("Getting Coupon List");
             var coupon = await dbContext.Coupon.ToListAsync();
-            return mapper.Map<List<GetCouponDTO>>(coupon);
+            return mapper.Map<List<GetSimpleCouponDTO>>(coupon);
         }
 
         //GET BY ID-------------------------------------------------------------------------------
@@ -70,27 +71,46 @@ namespace Event_manager_API.Controllers
             return mapper.Map<GetCouponDTOwithTickets>(object_);
         }
 
-
-        //POST---------------------------------------------------------------------------------------
+        //GET BY COUPON CODE-------------------------------------------------------------------------------
 
         /// <summary>
-        /// Add a Coupon.
+        /// Get Coupon bt typin Coupon Code.
         /// </summary>
-        /// <remarks>
-        /// Sample request:
-        ///
-        ///     To add a new coupon follow this strcture
-        ///     {
-        ///         "createdAt": "2023-05-09T02:43:40.454Z",
-        ///         "description": "string",
-        ///         "code": "string",
-        ///         "discountPercentage": 0,
-        ///         "eventId": 0
-        ///     }
-        ///
-        /// </remarks>
+        
+        [HttpGet("UseCoupon/{code}")]
+        public async Task<ActionResult<GetSimpleCouponDTO>> GetBycode(string code)
+        {
 
-        [HttpPost]
+            var exists = await dbContext.Coupon.AnyAsync(x => x.Code == code);
+            if (!exists)
+            {
+                return NotFound("Does not exist");
+            }
+
+            var coupon = await dbContext.Coupon.FirstOrDefaultAsync(x => x.Code == code);
+            return mapper.Map<GetSimpleCouponDTO>(coupon);
+        }
+        
+
+    //POST---------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Add a Coupon.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     To add a new coupon follow this strcture
+    ///     {
+    ///         "description": "string",
+    ///         "code": "string",
+    ///         "discountPercentage": 0,
+    ///         "eventId": 0
+    ///     }
+    ///
+    /// </remarks>
+
+    [HttpPost]
 
         public async Task<ActionResult> Post([FromBody] CouponDTO couponDTO)
         {
@@ -102,6 +122,7 @@ namespace Event_manager_API.Controllers
             }
 
             var coupon = mapper.Map<Coupon>(couponDTO);
+            coupon.CreatedAt= DateTime.Now;
             dbContext.Add(coupon);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -119,7 +140,6 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update coupon follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-09T02:43:40.454Z",
         ///         "description": "string",
         ///         "code": "string",
         ///         "discountPercentage": 0,
@@ -145,6 +165,7 @@ namespace Event_manager_API.Controllers
 
             var coupon = mapper.Map<Coupon>(couponDTO);
             coupon.Id = id;
+            coupon.CreatedAt = DateTime.Now;
             dbContext.Update(coupon);
             await dbContext.SaveChangesAsync();
             return Ok();

@@ -3,15 +3,23 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 using Event_manager_API.Validations;
+using Microsoft.AspNetCore.Identity;
 
 namespace Event_manager_API.Entities
 {
-    public class User
+    public class ApplicationUser
     {
         
         public int Id { get; set; }
-        
+
+
+        //Link Account
         [Required]
+        //[ForeignKey("AccountId")]
+        public string AccountId { get; set; }
+        public IdentityUser Account{ get; set; }
+
+        
         public DateTime CreatedAt { get; set; }
 
         [Required] //
@@ -23,9 +31,6 @@ namespace Event_manager_API.Entities
         [EmailAddress]
         public string Email { get; set; }
         
-        [Required]
-        [PasswordValidation]
-        public string Password { get; set; }
         
         [Required]
         [ValidRole]

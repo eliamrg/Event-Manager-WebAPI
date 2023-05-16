@@ -2,6 +2,8 @@
 using Event_manager_API.DTOs.Get;
 using Event_manager_API.DTOs.Set;
 using Event_manager_API.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +13,7 @@ namespace Event_manager_API.Controllers
 {
     [ApiController]
     [Route("User")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
     public class UserController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
@@ -36,7 +39,7 @@ namespace Event_manager_API.Controllers
         public async Task<ActionResult<List<GetUserDTO>>> GetAll()
         {
             logger.LogInformation("Getting User List");
-            var user=await dbContext.User.ToListAsync();
+            var user=await dbContext.User.Include(DB => DB.Account).ToListAsync();
             return mapper.Map<List<GetUserDTO>>(user);
         }
 
@@ -48,7 +51,7 @@ namespace Event_manager_API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<GetUserDTO>> GetById(int id)
         {
-            var user = await dbContext.User.FirstOrDefaultAsync(x => x.Id == id);
+            var user = await dbContext.User.Include(DB => DB.Account).FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetUserDTO>(user);
         }
 
@@ -112,6 +115,43 @@ namespace Event_manager_API.Controllers
             return mapper.Map<GetUserDTOwithTickets>(object_);
         }
 
+
+
+        //PATCH-----------------------------------------------------------------
+        /// <summary>
+        /// Update User's UserName
+        /// </summary>
+        /// 
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     To Update user follow this strcture, and specify id
+        ///     {
+        ///         "username": "string",
+        ///     }
+        ///
+        /// </remarks>
+
+        [HttpPatch("ChangeUserName/{id:int}/{UserName}")]
+        public async Task<ActionResult> UpdateUserName([FromRoute]string UserName, [FromRoute] int id)
+        {
+            var exists = await dbContext.User.AnyAsync(x => x.Id == id);
+            if (!exists)
+            {
+                return NotFound("Does not exist");
+            }
+            var userDTO = await dbContext.User.FirstOrDefaultAsync(x => x.Id == id);
+            var user = mapper.Map<ApplicationUser>(userDTO);
+            user.Id = id;
+            user.Username=UserName;
+            dbContext.Update(user);
+            await dbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+
+
+        /*
         //POST---------------------------------------------------------------------------------------
 
         /// <summary>
@@ -133,51 +173,51 @@ namespace Event_manager_API.Controllers
 
         [HttpPost]
 
-        public async Task<ActionResult> Post([FromBody] UserDTO userDTO)
+        public async Task<ActionResult> Post([FromBody] ApplicationUserDTO userDTO)
         {
-            var user = mapper.Map<User>(userDTO);
+            var user = mapper.Map<ApplicationUser>(userDTO);
             dbContext.Add(user);
             await dbContext.SaveChangesAsync();
             return Ok();
         }
-
+        */
 
         //UPDATE------------------------------------------------------------------------------------------------
+        /*
+                /// <summary>
+                /// Update User.
+                /// </summary>
+                /// <returns>A newly created User</returns>
+                /// <remarks>
+                /// Sample request:
+                ///
+                ///     To Update user follow this strcture, and specify id
+                ///     {
+                ///         "username": "string",
+                ///         "email": "user@example.com",
+                ///         "password": "string",
+                ///         "role": "user or admin"
+                ///     }
+                ///
+                /// </remarks>
 
-        /// <summary>
-        /// Update User.
-        /// </summary>
-        /// <returns>A newly created User</returns>
-        /// <remarks>
-        /// Sample request:
-        ///
-        ///     To Update user follow this strcture, and specify id
-        ///     {
-        ///         "createdAt": "2023-05-07T02:57:19.824Z",
-        ///         "username": "string",
-        ///         "email": "user@example.com",
-        ///         "password": "string",
-        ///         "role": "user or admin"
-        ///     }
-        ///
-        /// </remarks>
+                [HttpPut("{id:int}")]
+                public async Task<ActionResult> PutUser ( ApplicationUserDTO userDTO, [FromRoute]int id)
+                {
+                    var exists = await dbContext.User.AnyAsync(x => x.Id == id);
+                    if (!exists)
+                    {
+                        return NotFound("Does not exist");
+                    }
 
-        [HttpPut("{id:int}")]
-        public async Task<ActionResult> PutUser ( UserDTO userDTO, [FromRoute]int id)
-        {
-            var exists = await dbContext.User.AnyAsync(x => x.Id == id);
-            if (!exists)
-            {
-                return NotFound("Does not exist");
-            }
+                    var user = mapper.Map<ApplicationUser>(userDTO);
+                    user.Id = id;
 
-            var user = mapper.Map<User>(userDTO);
-            user.Id = id;
-            dbContext.Update(user);
-            await dbContext.SaveChangesAsync();
-            return Ok();
-        }
-
+                    dbContext.Update(user);
+                    await dbContext.SaveChangesAsync();
+                    return Ok();
+                }*/
+        /*
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>
@@ -194,13 +234,13 @@ namespace Event_manager_API.Controllers
             {
                 return NotFound();
             }
-            dbContext.Remove(new User()
+            dbContext.Remove(new ApplicationUser()
                 { Id = id, }
             );
             await dbContext.SaveChangesAsync();
             return Ok();
         }
 
-       
+       */
     }
 }

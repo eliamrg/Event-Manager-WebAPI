@@ -2,6 +2,8 @@
 using Event_manager_API.DTOs.Get;
 using Event_manager_API.DTOs.Set;
 using Event_manager_API.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +13,7 @@ namespace Event_manager_API.Controllers
 {
     [ApiController]
     [Route("Event")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
     public class EventController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
@@ -100,7 +103,6 @@ namespace Event_manager_API.Controllers
         ///
         ///     To add a new event_ follow this strcture
         ///     {
-        ///         "createdAt": "2023-05-09T02:48:00.083Z",
         ///         "name": "string",
         ///         "description": "string",
         ///         "ticketPrice": 0,
@@ -110,6 +112,7 @@ namespace Event_manager_API.Controllers
         ///         "locationId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPost]
@@ -131,6 +134,7 @@ namespace Event_manager_API.Controllers
             }
 
             var event_ = mapper.Map<Event>(event_DTO);
+            event_.CreatedAt = DateTime.Now;
             dbContext.Add(event_);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -148,7 +152,6 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update event_ follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-09T02:48:00.083Z",
         ///         "name": "string",
         ///         "description": "string",
         ///         "ticketPrice": 0,
@@ -158,6 +161,7 @@ namespace Event_manager_API.Controllers
         ///         "locationId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPut("{id:int}")]
@@ -183,6 +187,7 @@ namespace Event_manager_API.Controllers
 
             var event_ = mapper.Map<Event>(event_DTO);
             event_.Id = id;
+            event_.CreatedAt = DateTime.Now;
             dbContext.Update(event_);
             await dbContext.SaveChangesAsync();
             return Ok();
