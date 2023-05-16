@@ -138,6 +138,10 @@ namespace Event_manager_API
                     builder.WithOrigins("https://google.com").AllowAnyMethod().AllowAnyHeader();
                 });
             });
+            services.Configure<PasswordHasherOptions>(options =>
+                options.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV2
+            );
+            //services.AddDefaultIdentity(options => options.SignIn.RequireConfirmedAccount = true);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)

@@ -8,6 +8,7 @@ namespace Event_manager_API.Entities
 {
     public class User
     {
+        
         public int Id { get; set; }
         
         [Required]

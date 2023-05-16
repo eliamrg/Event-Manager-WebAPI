@@ -13,30 +13,34 @@ namespace Event_manager_API.Controllers
     [Route("Account")]
     public class AccountController:ControllerBase
     {
+        private readonly ApplicationDbContext dbContext;
         private readonly UserManager<IdentityUser> userManager;
         private readonly IConfiguration configuration;
         private readonly SignInManager<IdentityUser> signInManager;
+        
 
         public AccountController(
                 UserManager<IdentityUser> userManager, 
                 IConfiguration configuration, 
-                SignInManager<IdentityUser> signInManager
+                SignInManager<IdentityUser> signInManager,
+                 ApplicationDbContext dbContext
             )
         {
             this.userManager = userManager;
             this.configuration = configuration;
             this.signInManager = signInManager;
+            this.dbContext= dbContext;
         }
 
         [HttpPost("Register")]
         public async Task<ActionResult<AuthenticationResponse>> Register(UserCredentials credentials)
         {
-            var user = new IdentityUser { UserName = credentials.UserName, Email = credentials.Email };
+            var user = new IdentityUser { UserName = credentials.Email, Email = credentials.Email };
             var result = await userManager.CreateAsync(user, credentials.Password);
 
             if (result.Succeeded)
             {
-                return BuildToken(credentials);
+                return await BuildToken(credentials);
             }
             else
             {
@@ -48,15 +52,18 @@ namespace Event_manager_API.Controllers
         public async Task<ActionResult<AuthenticationResponse>> Login(UserCredentials credentials)
         {
 
-            var result = await signInManager.PasswordSignInAsync(credentials.Email, credentials.Password, isPersistent: false, lockoutOnFailure: false);
-
+            var user=await userManager.FindByNameAsync(credentials.Email);
+            var userEmail = user.Email;
+            var result = await signInManager.PasswordSignInAsync(userEmail, credentials.Password, isPersistent: false, lockoutOnFailure: false);
+            
+            
             if (result.Succeeded)
             {
-                return BuildToken(credentials);
+                return await BuildToken(credentials);
             }
             else
             {
-                return BadRequest("Login Error");
+                return BadRequest(result);
             }
         }
 
@@ -76,7 +83,7 @@ namespace Event_manager_API.Controllers
         }
 
         [HttpGet("RenewToken")]
-        public  ActionResult<AuthenticationResponse> RenewToken(EditAdmin editAdmin)
+        public async Task<ActionResult<AuthenticationResponse>> RenewToken(EditAdmin editAdmin)
         {
 
             var emailClaim = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
@@ -86,17 +93,19 @@ namespace Event_manager_API.Controllers
             {
                 Email = email,
             };
-            return BuildToken(credentials);
+            return await BuildToken(credentials);
         }
 
-        private  AuthenticationResponse BuildToken(UserCredentials credentials)
+        private  async Task<AuthenticationResponse> BuildToken(UserCredentials credentials)
         {
             var claims = new List<Claim>
             {
                 new Claim("email",credentials.Email),
-                new Claim("username",credentials.UserName)
+               
             };
-
+            var user = await userManager.FindByEmailAsync(credentials.Email);
+            var claimsDB = await userManager.GetClaimsAsync(user);
+            claims.AddRange(claimsDB);
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["keyjwt"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expiration = DateTime.UtcNow.AddHours(1);
