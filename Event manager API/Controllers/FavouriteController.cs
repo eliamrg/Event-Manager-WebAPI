@@ -2,6 +2,8 @@
 using Event_manager_API.DTOs.Get;
 using Event_manager_API.DTOs.Set;
 using Event_manager_API.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +13,7 @@ namespace Event_manager_API.Controllers
 {
     [ApiController]
     [Route("Favourite")]
+
     public class FavouriteController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
@@ -32,11 +35,13 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Get a list of Favourites.
         /// </summary>
+        
         [HttpGet("GetAll")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult<List<GetFavouriteDTO>>> GetAll()
         {
             logger.LogInformation("Getting Favourite List");
-            var favourite = await dbContext.Favourite.ToListAsync();
+            var favourite = await dbContext.Favourite.Include(x=>x.User).Include(x=>x.Event).ThenInclude(x => x.Location).ToListAsync();
             return mapper.Map<List<GetFavouriteDTO>>(favourite);
         }
 
@@ -45,10 +50,12 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Get Favourite by Id.
         /// </summary>
+        
         [HttpGet("{id:int}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult<GetFavouriteDTO>> GetById(int id)
         {
-            var favourite = await dbContext.Favourite.FirstOrDefaultAsync(x => x.Id == id);
+            var favourite = await dbContext.Favourite.Include(x => x.User).Include(x => x.Event).ThenInclude(x => x.Location).FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetFavouriteDTO>(favourite);
         }
 
@@ -63,11 +70,11 @@ namespace Event_manager_API.Controllers
         ///
         ///     To add a new favourite follow this strcture
         ///     {
-        ///         "createdAt": "2023-05-09T03:02:49.829Z",
         ///         "userId": 0,
         ///         "eventId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPost]
@@ -82,13 +89,14 @@ namespace Event_manager_API.Controllers
                 return BadRequest("That User does not exist");
             }
 
-            var eventExists = await dbContext.User.AnyAsync(x => x.Id == favouriteDTO.EventId);
+            var eventExists = await dbContext.Event.AnyAsync(x => x.Id == favouriteDTO.EventId);
             if (!eventExists)
             {
                 return BadRequest("That Event does not exist");
             }
 
             var favourite = mapper.Map<Favourite>(favouriteDTO);
+            favourite.CreatedAt = DateTime.Now;
             dbContext.Add(favourite);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -106,11 +114,11 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update favourite follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-09T03:02:49.829Z",
         ///         "userId": 0,
         ///         "eventId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPut("{id:int}")]
@@ -128,7 +136,7 @@ namespace Event_manager_API.Controllers
                 return BadRequest("That User does not exist");
             }
 
-            var eventExists = await dbContext.User.AnyAsync(x => x.Id == favouriteDTO.EventId);
+            var eventExists = await dbContext.Event.AnyAsync(x => x.Id == favouriteDTO.EventId);
             if (!eventExists)
             {
                 return BadRequest("That Event does not exist");
@@ -136,6 +144,7 @@ namespace Event_manager_API.Controllers
 
             var favourite = mapper.Map<Favourite>(favouriteDTO);
             favourite.Id = id;
+            favourite.CreatedAt = DateTime.Now;
             dbContext.Update(favourite);
             await dbContext.SaveChangesAsync();
             return Ok();

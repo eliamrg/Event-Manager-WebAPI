@@ -5,8 +5,7 @@ namespace Event_manager_API.DTOs.Set
     public class FollowDTO
     {
         
-        [Required]
-        public DateTime CreatedAt { get; set; }
+        
 
         //RELATIONSHIPS
 

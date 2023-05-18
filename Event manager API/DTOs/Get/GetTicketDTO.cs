@@ -21,16 +21,16 @@ namespace Event_manager_API.DTOs.Get
         //------User
         [Required]
         public int UserId { get; set; }
-        public GetUserDTO User { get; set; }
+        public GetSimpleUserDTO User { get; set; }
 
         //------Event
         [Required]
         public int EventId { get; set; }
-        public GetEventDTO Event { get; set; }
+        public GetSimpleEventDTO Event { get; set; }
         
         //------Coupon
         public int CouponId { get; set; }
-        public GetCouponDTO Coupon { get; set; }
+        public GetSimpleCouponDTO Coupon { get; set; }
 
         
 

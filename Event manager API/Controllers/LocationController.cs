@@ -2,6 +2,8 @@
 using Event_manager_API.DTOs.Get;
 using Event_manager_API.DTOs.Set;
 using Event_manager_API.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +13,7 @@ namespace Event_manager_API.Controllers
 {
     [ApiController]
     [Route("Location")]
+    
     public class LocationController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
@@ -80,7 +83,6 @@ namespace Event_manager_API.Controllers
         ///
         ///     To add a new location follow this strcture
         ///     {
-        ///         "createdAt": "2023-05-09T03:13:39.510Z",
         ///         "name": "string",
         ///         "address": "string",
         ///         "capacity": 0
@@ -89,11 +91,12 @@ namespace Event_manager_API.Controllers
         /// </remarks>
 
         [HttpPost]
-
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult> Post([FromBody] LocationDTO locationDTO)
         {
             var location = mapper.Map<Location>(locationDTO);
             dbContext.Add(location);
+            location.CreatedAt = DateTime.Now;
             await dbContext.SaveChangesAsync();
             return Ok();
         }
@@ -110,7 +113,6 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update location follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-09T03:13:39.510Z",
         ///         "name": "string",
         ///         "address": "string",
         ///         "capacity": 0
@@ -119,6 +121,7 @@ namespace Event_manager_API.Controllers
         /// </remarks>
 
         [HttpPut("{id:int}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult> PutLocation(LocationDTO locationDTO, [FromRoute] int id)
         {
             var exists = await dbContext.Location.AnyAsync(x => x.Id == id);
@@ -129,6 +132,7 @@ namespace Event_manager_API.Controllers
 
             var location = mapper.Map<Location>(locationDTO);
             location.Id = id;
+            location.CreatedAt = DateTime.Now;
             dbContext.Update(location);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -141,7 +145,7 @@ namespace Event_manager_API.Controllers
         /// </summary>
         /// 
 
-
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {

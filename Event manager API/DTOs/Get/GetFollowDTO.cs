@@ -14,12 +14,12 @@ namespace Event_manager_API.DTOs.Get
         //------User
         [Required] 
         public int UserId { get; set; }
-        public GetUserDTO User { get; set; }
+        public GetSimpleUserDTO User { get; set; }
 
         //------User Admin
         [Required] 
         public int AdminId { get; set; }
-        public GetUserDTO Admin { get; set; }
+        public GetSimpleUserDTO Admin { get; set; }
 
 
 

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Event_manager_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230516012613_Initial")]
-    partial class Initial
+    [Migration("20230518055749_FinalMigration")]
+    partial class FinalMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,41 @@ namespace Event_manager_API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Event_manager_API.Entities.ApplicationUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccountId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("User");
+                });
 
             modelBuilder.Entity("Event_manager_API.Entities.Coupon", b =>
                 {
@@ -158,8 +193,9 @@ namespace Event_manager_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Comment")
-                        .HasColumnType("int");
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -238,39 +274,6 @@ namespace Event_manager_API.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Ticket");
-                });
-
-            modelBuilder.Entity("Event_manager_API.Entities.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -471,6 +474,17 @@ namespace Event_manager_API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Event_manager_API.Entities.ApplicationUser", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("Event_manager_API.Entities.Coupon", b =>
                 {
                     b.HasOne("Event_manager_API.Entities.Event", "Event")
@@ -484,7 +498,7 @@ namespace Event_manager_API.Migrations
 
             modelBuilder.Entity("Event_manager_API.Entities.Event", b =>
                 {
-                    b.HasOne("Event_manager_API.Entities.User", "Admin")
+                    b.HasOne("Event_manager_API.Entities.ApplicationUser", "Admin")
                         .WithMany()
                         .HasForeignKey("AdminId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -509,7 +523,7 @@ namespace Event_manager_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Event_manager_API.Entities.User", "User")
+                    b.HasOne("Event_manager_API.Entities.ApplicationUser", "User")
                         .WithMany("Favourites")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -522,12 +536,12 @@ namespace Event_manager_API.Migrations
 
             modelBuilder.Entity("Event_manager_API.Entities.Follow", b =>
                 {
-                    b.HasOne("Event_manager_API.Entities.User", "Admin")
+                    b.HasOne("Event_manager_API.Entities.ApplicationUser", "Admin")
                         .WithMany("Followers")
                         .HasForeignKey("AdminId")
                         .IsRequired();
 
-                    b.HasOne("Event_manager_API.Entities.User", "User")
+                    b.HasOne("Event_manager_API.Entities.ApplicationUser", "User")
                         .WithMany("Following")
                         .HasForeignKey("UserId")
                         .IsRequired();
@@ -545,7 +559,7 @@ namespace Event_manager_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Event_manager_API.Entities.User", "User")
+                    b.HasOne("Event_manager_API.Entities.ApplicationUser", "User")
                         .WithMany("FormResponses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -570,7 +584,7 @@ namespace Event_manager_API.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Event_manager_API.Entities.User", "User")
+                    b.HasOne("Event_manager_API.Entities.ApplicationUser", "User")
                         .WithMany("Tickets")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -634,6 +648,19 @@ namespace Event_manager_API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Event_manager_API.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("Favourites");
+
+                    b.Navigation("Followers");
+
+                    b.Navigation("Following");
+
+                    b.Navigation("FormResponses");
+
+                    b.Navigation("Tickets");
+                });
+
             modelBuilder.Entity("Event_manager_API.Entities.Coupon", b =>
                 {
                     b.Navigation("Tickets");
@@ -651,19 +678,6 @@ namespace Event_manager_API.Migrations
             modelBuilder.Entity("Event_manager_API.Entities.Location", b =>
                 {
                     b.Navigation("EventsList");
-                });
-
-            modelBuilder.Entity("Event_manager_API.Entities.User", b =>
-                {
-                    b.Navigation("Favourites");
-
-                    b.Navigation("Followers");
-
-                    b.Navigation("Following");
-
-                    b.Navigation("FormResponses");
-
-                    b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618
         }

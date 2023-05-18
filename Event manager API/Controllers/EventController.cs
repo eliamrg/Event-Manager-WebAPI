@@ -2,6 +2,8 @@
 using Event_manager_API.DTOs.Get;
 using Event_manager_API.DTOs.Set;
 using Event_manager_API.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +13,7 @@ namespace Event_manager_API.Controllers
 {
     [ApiController]
     [Route("Event")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
     public class EventController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
@@ -36,7 +39,7 @@ namespace Event_manager_API.Controllers
         public async Task<ActionResult<List<GetEventDTO>>> GetAll()
         {
             logger.LogInformation("Getting Event List");
-            var event_ = await dbContext.Event.ToListAsync();
+            var event_ = await dbContext.Event.Include(db=> db.Admin).Include(db=>db.Location).ToListAsync();
             return mapper.Map<List<GetEventDTO>>(event_);
         }
 
@@ -48,7 +51,7 @@ namespace Event_manager_API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<GetEventDTO>> GetById(int id)
         {
-            var event_ = await dbContext.Event.FirstOrDefaultAsync(x => x.Id == id);
+            var event_ = await dbContext.Event.Include(db => db.Admin).Include(db => db.Location).FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetEventDTO>(event_);
         }
 
@@ -61,6 +64,7 @@ namespace Event_manager_API.Controllers
         {
 
             var object_ = await dbContext.Event
+                
                 .Include(DB => DB.Coupons)
                 .FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetEventDTOwithCoupons>(object_);
@@ -100,7 +104,6 @@ namespace Event_manager_API.Controllers
         ///
         ///     To add a new event_ follow this strcture
         ///     {
-        ///         "createdAt": "2023-05-09T02:48:00.083Z",
         ///         "name": "string",
         ///         "description": "string",
         ///         "ticketPrice": 0,
@@ -110,6 +113,7 @@ namespace Event_manager_API.Controllers
         ///         "locationId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPost]
@@ -131,8 +135,23 @@ namespace Event_manager_API.Controllers
             }
 
             var event_ = mapper.Map<Event>(event_DTO);
+            event_.CreatedAt = DateTime.Now;
             dbContext.Add(event_);
             await dbContext.SaveChangesAsync();
+
+            //Create coupon with no benefits
+
+            CouponDTO couponDTO = new CouponDTO();
+
+            couponDTO.Code = "NoCode";
+            couponDTO.EventId = event_.Id;
+            couponDTO.Description = "No Benefits";
+            couponDTO.DiscountPercentage = 0;  
+            var coupon = mapper.Map<Coupon>(couponDTO);
+            coupon.CreatedAt = DateTime.Now;
+            dbContext.Add(coupon);
+            await dbContext.SaveChangesAsync();
+
             return Ok();
         }
 
@@ -148,7 +167,6 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update event_ follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-09T02:48:00.083Z",
         ///         "name": "string",
         ///         "description": "string",
         ///         "ticketPrice": 0,
@@ -158,6 +176,7 @@ namespace Event_manager_API.Controllers
         ///         "locationId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPut("{id:int}")]
@@ -183,6 +202,7 @@ namespace Event_manager_API.Controllers
 
             var event_ = mapper.Map<Event>(event_DTO);
             event_.Id = id;
+            event_.CreatedAt = DateTime.Now;
             dbContext.Update(event_);
             await dbContext.SaveChangesAsync();
             return Ok();

@@ -8,8 +8,7 @@ namespace Event_manager_API.DTOs.Set
     public class CouponDTO
     {
         
-        [Required]
-        public DateTime CreatedAt { get; set; }
+        
 
         public string Description { get; set; }
         

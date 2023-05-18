@@ -2,6 +2,8 @@
 using Event_manager_API.DTOs.Get;
 using Event_manager_API.DTOs.Set;
 using Event_manager_API.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,11 +34,13 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Get a list of Forms.
         /// </summary>
+        
         [HttpGet("GetAll")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult<List<GetFormDTO>>> GetAll()
         {
             logger.LogInformation("Getting Form List");
-            var form = await dbContext.Form.ToListAsync();
+            var form = await dbContext.Form.Include(x=>x.Event).ThenInclude(x => x.Location).Include(x => x.User).ToListAsync();
             return mapper.Map<List<GetFormDTO>>(form);
         }
 
@@ -45,10 +49,12 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Get Form by Id.
         /// </summary>
+        
         [HttpGet("{id:int}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult<GetFormDTO>> GetById(int id)
         {
-            var form = await dbContext.Form.FirstOrDefaultAsync(x => x.Id == id);
+            var form = await dbContext.Form.Include(x => x.Event).ThenInclude(x => x.Location).Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetFormDTO>(form);
         }
 
@@ -63,12 +69,12 @@ namespace Event_manager_API.Controllers
         ///
         ///     To add a new form follow this strcture
         ///     {
-        ///         "createdAt": "2023-05-09T03:05:49.215Z",
         ///         "comment": 0,
         ///         "userId": 0,
         ///         "eventId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPost]
@@ -88,7 +94,9 @@ namespace Event_manager_API.Controllers
             }
 
             var form = mapper.Map<Form>(formDTO);
+            form.CreatedAt = DateTime.Now;
             dbContext.Add(form);
+
             await dbContext.SaveChangesAsync();
             return Ok();
         }
@@ -105,12 +113,12 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update form follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-09T03:05:49.215Z",
         ///         "comment": 0,
         ///         "userId": 0,
         ///         "eventId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPut("{id:int}")]
@@ -136,6 +144,7 @@ namespace Event_manager_API.Controllers
 
             var form = mapper.Map<Form>(formDTO);
             form.Id = id;
+            form.CreatedAt = DateTime.Now;
             dbContext.Update(form);
             await dbContext.SaveChangesAsync();
             return Ok();

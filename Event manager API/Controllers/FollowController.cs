@@ -36,7 +36,7 @@ namespace Event_manager_API.Controllers
         public async Task<ActionResult<List<GetFollowDTO>>> GetAll()
         {
             logger.LogInformation("Getting Follow List");
-            var follow = await dbContext.Follow.ToListAsync();
+            var follow = await dbContext.Follow.Include(x=>x.Admin).Include(x => x.User).ToListAsync();
             return mapper.Map<List<GetFollowDTO>>(follow);
         }
 
@@ -48,7 +48,7 @@ namespace Event_manager_API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<GetFollowDTO>> GetById(int id)
         {
-            var follow = await dbContext.Follow.FirstOrDefaultAsync(x => x.Id == id);
+            var follow = await dbContext.Follow.Include(x => x.Admin).Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetFollowDTO>(follow);
         }
 
@@ -63,11 +63,11 @@ namespace Event_manager_API.Controllers
         ///
         ///     To add a new follow follow this strcture
         ///     {
-        ///         "createdAt": "2023-05-09T03:05:01.100Z",
         ///         "userId": 0,
         ///         "adminId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPost]
@@ -87,6 +87,7 @@ namespace Event_manager_API.Controllers
                 return BadRequest("That Administrator does not exist");
             }
             var follow = mapper.Map<Follow>(followDTO);
+            follow.CreatedAt = DateTime.Now;
             dbContext.Add(follow);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -109,6 +110,7 @@ namespace Event_manager_API.Controllers
         ///         "adminId": 0
         ///     }
         ///
+        /// USE USER ID, NOT ACCOUNT ID
         /// </remarks>
 
         [HttpPut("{id:int}")]
@@ -128,6 +130,7 @@ namespace Event_manager_API.Controllers
             }*/
             var follow = mapper.Map<Follow>(followDTO);
             follow.Id = id;
+            follow.CreatedAt = DateTime.Now;
             dbContext.Update(follow);
             await dbContext.SaveChangesAsync();
             return Ok();

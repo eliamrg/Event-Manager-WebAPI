@@ -1,10 +1,11 @@
 ﻿using Event_manager_API.Validations;
 using System.ComponentModel.DataAnnotations;
 
-namespace Event_manager_API.DTOs.Set
+namespace Event_manager_API.DTOs.Get
 {
-    public class LocationDTO
+    public class GetSimpleLocationDTO
     {
+        public int Id { get; set; }
         
        
         
@@ -15,15 +16,8 @@ namespace Event_manager_API.DTOs.Set
         [Required]
         public string Address { get; set; }
 
-        [Required]
-        [CapacityNotCero]
-        public int Capacity { get; set; }
 
 
-        //RELATIONSHIPS
-        
-        //------X
-        
         
     }
 }
