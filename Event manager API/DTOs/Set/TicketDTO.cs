@@ -7,11 +7,7 @@ namespace Event_manager_API.DTOs.Set
     public class TicketDTO
     {
         
-        
 
-        
-        
-        
 
         //RELATIONSHIPS
 

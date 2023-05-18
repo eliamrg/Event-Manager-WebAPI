@@ -24,10 +24,12 @@ namespace Event_manager_API.Utilities
 
             //DTO GET
             CreateMap<Coupon, GetCouponDTO>();
+            CreateMap<Coupon, GetSimpleCouponDTO>();
             CreateMap<Coupon, GetCouponDTOwithTickets>()
                 .ForMember(DTO => DTO.Tickets, opt => opt.MapFrom(MapGetCouponDTOwithTickets));
             //----------------------------------------------------------------------------------
             CreateMap<Event, GetEventDTO>();
+            CreateMap<Event, GetSimpleEventDTO>();
             CreateMap<Event, GetEventDTOwithCoupons>()
                 .ForMember(DTO => DTO.Coupons, opt => opt.MapFrom(MapGetEventDTOwithCoupons));
             CreateMap<Event, GetEventDTOwithForms>()
@@ -46,13 +48,16 @@ namespace Event_manager_API.Utilities
 
             //----------------------------------------------------------------------------------
             CreateMap<Location, GetLocationDTO>();
+            CreateMap<Location, GetSimpleLocationDTO>();
             CreateMap<Location, GetLocationDTOwithEvents>()
                 .ForMember(DTO => DTO.EventsList, opt => opt.MapFrom(MapGetLocationDTOwithEvents));
             //----------------------------------------------------------------------------------
             CreateMap<Ticket, GetTicketDTO>();
+            CreateMap<Ticket, GetSimpleTicketDTO>();
 
             //----------------------------------------------------------------------------------
             CreateMap<ApplicationUser, GetUserDTO>();
+            CreateMap<ApplicationUser, GetSimpleUserDTO>();
             CreateMap<ApplicationUser, GetUserDTOwithFavourites>()
                 .ForMember(DTO => DTO.Favourites, opt => opt.MapFrom(MapGetUserDTOwithFavourites));
             CreateMap<ApplicationUser, GetUserDTOwithFollowers>()

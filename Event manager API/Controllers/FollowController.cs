@@ -36,7 +36,7 @@ namespace Event_manager_API.Controllers
         public async Task<ActionResult<List<GetFollowDTO>>> GetAll()
         {
             logger.LogInformation("Getting Follow List");
-            var follow = await dbContext.Follow.ToListAsync();
+            var follow = await dbContext.Follow.Include(x=>x.Admin).Include(x => x.User).ToListAsync();
             return mapper.Map<List<GetFollowDTO>>(follow);
         }
 
@@ -48,7 +48,7 @@ namespace Event_manager_API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<GetFollowDTO>> GetById(int id)
         {
-            var follow = await dbContext.Follow.FirstOrDefaultAsync(x => x.Id == id);
+            var follow = await dbContext.Follow.Include(x => x.Admin).Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetFollowDTO>(follow);
         }
 

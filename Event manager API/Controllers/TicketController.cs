@@ -39,7 +39,7 @@ namespace Event_manager_API.Controllers
         public async Task<ActionResult<List<GetTicketDTO>>> GetAll()
         {
             logger.LogInformation("Getting Ticket List");
-            var ticket = await dbContext.Ticket.ToListAsync();
+            var ticket = await dbContext.Ticket.Include(x=>x.User).Include(x => x.Event).Include(x => x.Coupon).ToListAsync();
             return mapper.Map<List<GetTicketDTO>>(ticket);
         }
 
@@ -51,7 +51,7 @@ namespace Event_manager_API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<GetTicketDTO>> GetById(int id)
         {
-            var ticket = await dbContext.Ticket.FirstOrDefaultAsync(x => x.Id == id);
+            var ticket = await dbContext.Ticket.Include(x => x.User).Include(x => x.Event).Include(x => x.Coupon).FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetTicketDTO>(ticket);
         }
 
@@ -68,7 +68,7 @@ namespace Event_manager_API.Controllers
         ///     {
         ///         "userId": 0,
         ///         "eventId": 0,
-        ///         "couponId": 0
+        ///         "couponId": 0 -> 0:No Coupon
         ///     }
         ///
         /// USE USER ID, NOT ACCOUNT ID
@@ -79,6 +79,14 @@ namespace Event_manager_API.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> Post([FromBody] TicketDTO ticketDTO)
         {
+            //Check Capacity
+            var event_ = await dbContext.Event.FirstOrDefaultAsync(x => x.Id == ticketDTO.EventId);
+            var countTickets=await dbContext.Ticket.CountAsync();
+
+            if (event_.EventCapacity <= countTickets)
+            {
+                return BadRequest("That Event is full");
+            }
 
             var userExists = await dbContext.User.AnyAsync(x => x.Id == ticketDTO.UserId);
             if (!userExists)
@@ -86,28 +94,39 @@ namespace Event_manager_API.Controllers
                 return BadRequest("That User does not exist");
             }
 
-            var eventExists = await dbContext.Event.FirstOrDefaultAsync(x => x.Id == ticketDTO.EventId);
-            if (eventExists!=null)
+            var eventExists = await dbContext.Event.AnyAsync(x => x.Id == ticketDTO.EventId);
+            if (!eventExists)
             {
                 return BadRequest("That Event does not exist");
             }
 
-            //GET TICKET PRICE
-            decimal ticketPrice = eventExists.TicketPrice;
-           
             
+            //GET TICKET PRICE
+            decimal ticketPrice = event_.TicketPrice;
+
+
             if (ticketDTO.CouponId != 0)
             {
-                var couponExists = await dbContext.Coupon.FirstOrDefaultAsync(x => x.Id == ticketDTO.CouponId);
-                if (couponExists != null)
+                var couponExists = await dbContext.Coupon.AnyAsync(x => x.Id == ticketDTO.CouponId);
+                if (!couponExists )
                 {
                     return BadRequest("That Coupon does not exist");
                 }
 
                 //CALCULATE TICKET PRICE IN CASE COUPON EXISTS
-                
-                ticketPrice = eventExists.TicketPrice - (eventExists.TicketPrice * couponExists.DiscountPercentage);
+                var coupon = await dbContext.Coupon.FirstOrDefaultAsync(x => x.Id == ticketDTO.CouponId);
+                ticketPrice = event_.TicketPrice - (event_.TicketPrice * (coupon.DiscountPercentage/100));
             }
+            else
+            {
+
+                //No Coupon
+                var coupon = await dbContext.Coupon.FirstOrDefaultAsync(x => x.Code == "NoCode" && x.EventId==ticketDTO.EventId);
+                ticketDTO.CouponId = coupon.Id;
+                ticketPrice = event_.TicketPrice;
+
+            }
+
 
             var ticket = mapper.Map<Ticket>(ticketDTO);
             ticket.TicketPrice = ticketPrice;
@@ -131,7 +150,7 @@ namespace Event_manager_API.Controllers
         ///     {
         ///         "userId": 0,
         ///         "eventId": 0,
-        ///         "couponId": 0
+        ///         "couponId": 0 -> 0:No Coupon
         ///     }
         ///
         /// USE USER ID, NOT ACCOUNT ID
@@ -140,6 +159,8 @@ namespace Event_manager_API.Controllers
         [HttpPut("{id:int}")]
         public async Task<ActionResult> PutTicket(TicketDTO ticketDTO, [FromRoute] int id)
         {
+            
+            
             var exists = await dbContext.Ticket.AnyAsync(x => x.Id == id);
             if (!exists)
             {
@@ -152,27 +173,36 @@ namespace Event_manager_API.Controllers
                 return BadRequest("That User does not exist");
             }
 
-            var eventExists = await dbContext.Event.FirstOrDefaultAsync(x => x.Id == ticketDTO.EventId);
-            if (eventExists != null)
+            var eventExists = await dbContext.Event.AnyAsync(x => x.Id == ticketDTO.EventId);
+            if (!eventExists)
             {
                 return BadRequest("That Event does not exist");
             }
 
+            var event_ = await dbContext.Event.FirstOrDefaultAsync(x => x.Id == ticketDTO.EventId);
             //GET TICKET PRICE
-            decimal ticketPrice = eventExists.TicketPrice;
+            decimal ticketPrice = event_.TicketPrice;
 
 
             if (ticketDTO.CouponId != 0)
             {
-                var couponExists = await dbContext.Coupon.FirstOrDefaultAsync(x => x.Id == ticketDTO.CouponId);
-                if (couponExists != null)
+                var couponExists = await dbContext.Coupon.AnyAsync(x => x.Id == ticketDTO.CouponId);
+                if (!couponExists)
                 {
                     return BadRequest("That Coupon does not exist");
                 }
 
                 //CALCULATE TICKET PRICE IN CASE COUPON EXISTS
+                var coupon = await dbContext.Coupon.FirstOrDefaultAsync(x => x.Id == ticketDTO.CouponId);
+                ticketPrice = event_.TicketPrice - (event_.TicketPrice * (coupon.DiscountPercentage / 100));
+            }
+            else
+            {
+                //No Coupon
+                var coupon = await dbContext.Coupon.FirstOrDefaultAsync(x => x.Code == "NoCode" && x.EventId == ticketDTO.EventId);
+                ticketDTO.CouponId = coupon.Id;
+                ticketPrice = event_.TicketPrice;
 
-                ticketPrice = eventExists.TicketPrice - (eventExists.TicketPrice * couponExists.DiscountPercentage);
             }
 
 

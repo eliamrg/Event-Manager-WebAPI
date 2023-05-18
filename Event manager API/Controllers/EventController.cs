@@ -39,7 +39,7 @@ namespace Event_manager_API.Controllers
         public async Task<ActionResult<List<GetEventDTO>>> GetAll()
         {
             logger.LogInformation("Getting Event List");
-            var event_ = await dbContext.Event.ToListAsync();
+            var event_ = await dbContext.Event.Include(db=> db.Admin).Include(db=>db.Location).ToListAsync();
             return mapper.Map<List<GetEventDTO>>(event_);
         }
 
@@ -51,7 +51,7 @@ namespace Event_manager_API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<GetEventDTO>> GetById(int id)
         {
-            var event_ = await dbContext.Event.FirstOrDefaultAsync(x => x.Id == id);
+            var event_ = await dbContext.Event.Include(db => db.Admin).Include(db => db.Location).FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetEventDTO>(event_);
         }
 
@@ -64,6 +64,7 @@ namespace Event_manager_API.Controllers
         {
 
             var object_ = await dbContext.Event
+                
                 .Include(DB => DB.Coupons)
                 .FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetEventDTOwithCoupons>(object_);
@@ -137,6 +138,20 @@ namespace Event_manager_API.Controllers
             event_.CreatedAt = DateTime.Now;
             dbContext.Add(event_);
             await dbContext.SaveChangesAsync();
+
+            //Create coupon with no benefits
+
+            CouponDTO couponDTO = new CouponDTO();
+
+            couponDTO.Code = "NoCode";
+            couponDTO.EventId = event_.Id;
+            couponDTO.Description = "No Benefits";
+            couponDTO.DiscountPercentage = 0;  
+            var coupon = mapper.Map<Coupon>(couponDTO);
+            coupon.CreatedAt = DateTime.Now;
+            dbContext.Add(coupon);
+            await dbContext.SaveChangesAsync();
+
             return Ok();
         }
 

@@ -37,11 +37,11 @@ namespace Event_manager_API.Controllers
         /// Get a list of Coupons.
         /// </summary>
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<GetSimpleCouponDTO>>> GetAll()
+        public async Task<ActionResult<List<GetCouponDTO>>> GetAll()
         {
             logger.LogInformation("Getting Coupon List");
-            var coupon = await dbContext.Coupon.ToListAsync();
-            return mapper.Map<List<GetSimpleCouponDTO>>(coupon);
+            var coupon = await dbContext.Coupon.Include(x=>x.Event).ThenInclude(x=>x.Location).ToListAsync();
+            return mapper.Map<List<GetCouponDTO>>(coupon);
         }
 
         //GET BY ID-------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ namespace Event_manager_API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<GetCouponDTO>> GetById(int id)
         {
-            var coupon = await dbContext.Coupon.FirstOrDefaultAsync(x => x.Id == id);
+            var coupon = await dbContext.Coupon.Include(x => x.Event).ThenInclude(x => x.Location).FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetCouponDTO>(coupon);
         }
 
@@ -67,6 +67,7 @@ namespace Event_manager_API.Controllers
 
             var object_ = await dbContext.Coupon
                 .Include(DB => DB.Tickets)
+                .Include(x => x.Event)
                 .FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetCouponDTOwithTickets>(object_);
         }
@@ -193,5 +194,7 @@ namespace Event_manager_API.Controllers
             await dbContext.SaveChangesAsync();
             return Ok();
         }
+
+        
     }
 }
