@@ -7,7 +7,7 @@ namespace Event_manager_API.DTOs.Set
         
         
         [Required]
-        public int Comment { get; set; }
+        public string Comment { get; set; }
 
         //RELATIONSHIPS
 

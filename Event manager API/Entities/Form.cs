@@ -8,7 +8,7 @@ namespace Event_manager_API.Entities
         
         public DateTime CreatedAt { get; set; }
         [Required]
-        public int Comment { get; set; }
+        public string Comment { get; set; }
 
         //RELATIONSHIPS
 

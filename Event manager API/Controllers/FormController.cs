@@ -40,7 +40,7 @@ namespace Event_manager_API.Controllers
         public async Task<ActionResult<List<GetFormDTO>>> GetAll()
         {
             logger.LogInformation("Getting Form List");
-            var form = await dbContext.Form.ToListAsync();
+            var form = await dbContext.Form.Include(x=>x.Event).ThenInclude(x => x.Location).Include(x => x.User).ToListAsync();
             return mapper.Map<List<GetFormDTO>>(form);
         }
 
@@ -54,7 +54,7 @@ namespace Event_manager_API.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult<GetFormDTO>> GetById(int id)
         {
-            var form = await dbContext.Form.FirstOrDefaultAsync(x => x.Id == id);
+            var form = await dbContext.Form.Include(x => x.Event).ThenInclude(x => x.Location).Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetFormDTO>(form);
         }
 

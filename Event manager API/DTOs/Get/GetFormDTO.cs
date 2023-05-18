@@ -8,19 +8,19 @@ namespace Event_manager_API.DTOs.Get
         [Required] 
         public DateTime CreatedAt { get; set; }
         [Required]
-        public int Comment { get; set; }
+        public string Comment { get; set; }
 
         //RELATIONSHIPS
 
         //------User
         [Required]
         public int UserId { get; set; }
-        public GetUserDTO User { get; set; }
+        public GetSimpleUserDTO User { get; set; }
 
         //------Event
         [Required]
         public int EventId { get; set; }
-        public GetEventDTO Event { get; set; }
+        public GetSimpleEventDTO Event { get; set; }
 
 
         //LISTS

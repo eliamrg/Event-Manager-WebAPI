@@ -123,12 +123,7 @@ namespace Event_manager_API.Controllers
         /// </summary>
         /// 
         /// <remarks>
-        /// Sample request:
-        ///
-        ///     To Update user follow this strcture, and specify id
-        ///     {
-        ///         "username": "string",
-        ///     }
+        /// Please Specify users id and new User Name
         ///
         /// </remarks>
 
@@ -139,6 +134,10 @@ namespace Event_manager_API.Controllers
             if (!exists)
             {
                 return NotFound("Does not exist");
+            }
+            if (UserName==null || UserName.Length < 4)
+            {
+                return BadRequest();
             }
             var userDTO = await dbContext.User.FirstOrDefaultAsync(x => x.Id == id);
             var user = mapper.Map<ApplicationUser>(userDTO);

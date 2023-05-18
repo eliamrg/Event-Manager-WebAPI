@@ -16,6 +16,9 @@ namespace Event_manager_API.DTOs.Get
         
         public DateTime Date { get; set; }
 
-        
+        [Required]
+        public int LocationId { get; set; }
+        public GetSimpleLocationDTO Location { get; set; }
+
     }
 }

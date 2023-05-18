@@ -41,7 +41,7 @@ namespace Event_manager_API.Controllers
         public async Task<ActionResult<List<GetFavouriteDTO>>> GetAll()
         {
             logger.LogInformation("Getting Favourite List");
-            var favourite = await dbContext.Favourite.ToListAsync();
+            var favourite = await dbContext.Favourite.Include(x=>x.User).Include(x=>x.Event).ThenInclude(x => x.Location).ToListAsync();
             return mapper.Map<List<GetFavouriteDTO>>(favourite);
         }
 
@@ -55,7 +55,7 @@ namespace Event_manager_API.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult<GetFavouriteDTO>> GetById(int id)
         {
-            var favourite = await dbContext.Favourite.FirstOrDefaultAsync(x => x.Id == id);
+            var favourite = await dbContext.Favourite.Include(x => x.User).Include(x => x.Event).ThenInclude(x => x.Location).FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetFavouriteDTO>(favourite);
         }
 

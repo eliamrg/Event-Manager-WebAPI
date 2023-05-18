@@ -33,7 +33,7 @@ namespace Event_manager_API.DTOs.Get
         //------User(Admin)
         [Required]
         public int AdminId { get; set; }
-        public GetUserDTO Admin { get; set; }
+        public GetSimpleUserDTO Admin { get; set; }
 
         //------Location
         [Required]
