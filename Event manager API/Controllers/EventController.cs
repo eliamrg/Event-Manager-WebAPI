@@ -55,45 +55,105 @@ namespace Event_manager_API.Controllers
             return mapper.Map<GetEventDTO>(event_);
         }
 
+        //GET BY NAME-------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get Event by Name.
+        /// </summary>
+        [HttpGet("Name/{name}")]
+        public async Task<ActionResult<List<GetEventDTO>>> GetByName(string name)
+        {
+            var event_ = await dbContext.Event.Where(x => x.Name == name).Include(db => db.Admin).Include(db => db.Location).ToListAsync();
+            return mapper.Map<List<GetEventDTO>>(event_);
+        }
+        //GET BY DATE-------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get Event by Date.
+        /// </summary>
+        [HttpGet("Date/{date}")]
+        public async Task<ActionResult<List<GetEventDTO>>> GetByDate([FromHeader]DateTime date)
+        {
+            var event_ = await dbContext.Event.Where(x => x.Date == date).Include(db => db.Admin).Include(db => db.Location).ToListAsync();
+            return mapper.Map<List<GetEventDTO>>(event_);
+        }
+
+        //GET BY ID-------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get Event by LocationId.
+        /// </summary>
+        [HttpGet("Location/{LocationId:int}")]
+        public async Task<ActionResult<List<GetEventDTO>>> GetByLocationId(int LocationId)
+        {
+            var event_ = await dbContext.Event.Where(x => x.LocationId == LocationId).Include(db => db.Admin).Include(db => db.Location).ToListAsync();
+            return mapper.Map<List<GetEventDTO>>(event_);
+        }
 
         /// <summary>
         /// Get Event and coupons list by Id.
         /// </summary>
-        [HttpGet("Coupons/{id:int}")]
-        public async Task<ActionResult<GetEventDTOwithCoupons>> GetByIdListCoupons(int id)
+        [HttpGet("Coupons/{EventId:int}")]
+        public async Task<ActionResult<GetEventDTOwithCoupons>> GetByIdListCoupons(int EventId)
         {
 
             var object_ = await dbContext.Event
                 
                 .Include(DB => DB.Coupons)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == EventId);
             return mapper.Map<GetEventDTOwithCoupons>(object_);
         }
 
         /// <summary>
         /// Get Event and Form Responses by Id.
         /// </summary>
-        [HttpGet("Forms/{id:int}")]
-        public async Task<ActionResult<GetEventDTOwithForms>> GetByIdListForms(int id)
+        [HttpGet("Forms/{EventId:int}")]
+        public async Task<ActionResult<GetEventDTOwithForms>> GetByIdListForms(int EventId)
         {
 
             var object_ = await dbContext.Event
                 .Include(DB => DB.FormResponses)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == EventId);
             return mapper.Map<GetEventDTOwithForms>(object_);
         }
+
+        
         /// <summary>
         /// Get Event and Tickets list by Id.
         /// </summary>
-        [HttpGet("Tickets/{id:int}")]
-        public async Task<ActionResult<GetEventDTOwithTickets>> GetByIdListTickets(int id)
+        [HttpGet("Tickets/{EventId:int}")]
+        public async Task<ActionResult<GetEventDTOwithTickets>> GetByIdListTickets(int EventId)
         {
 
             var object_ = await dbContext.Event
                 .Include(DB => DB.Tickets)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == EventId);
             return mapper.Map<GetEventDTOwithTickets>(object_);
         }
+
+        /// <summary>
+        /// Get Popular Events.
+        /// </summary>
+        [HttpGet("Popular")]
+        [AllowAnonymous]
+        public async Task<ActionResult<List<GetEventDTO>>> GetPopularEvents()
+        {
+
+            //FROM THE EVENTS CREATED ON THE LAST 30 DAYS SELECT THE 25 WITH MORE TICKETS SOLD
+            var date30days = DateTime.Now.AddDays(30);
+            var today = DateTime.Now;
+
+            var object_ = await dbContext.Event
+                .Include(DB => DB.FormResponses)
+                .Where(x => x.CreatedAt < date30days && x.CreatedAt > today)
+                .OrderBy(x=> x.ticketsSold)
+                .Take(25)
+                .ToListAsync();
+
+            
+            return mapper.Map<List<GetEventDTO>>(object_);
+        }
+
         //POST---------------------------------------------------------------------------------------
 
         /// <summary>
@@ -136,6 +196,7 @@ namespace Event_manager_API.Controllers
 
             var event_ = mapper.Map<Event>(event_DTO);
             event_.CreatedAt = DateTime.Now;
+            event_.ticketsSold = 0;
             dbContext.Add(event_);
             await dbContext.SaveChangesAsync();
 

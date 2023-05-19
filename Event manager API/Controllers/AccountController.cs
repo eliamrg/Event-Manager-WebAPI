@@ -116,6 +116,10 @@ namespace Event_manager_API.Controllers
         {
 
             var user=await userManager.FindByNameAsync(credentials.Email);
+            if (user == null)
+            {
+                return NotFound();
+            }
             var userEmail = user.Email;
             var result = await signInManager.PasswordSignInAsync(userEmail, credentials.Password, isPersistent: false, lockoutOnFailure: false);
             

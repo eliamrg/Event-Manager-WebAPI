@@ -105,7 +105,6 @@ namespace Event_manager_API.Controllers
         ///
         ///     To Update follow follow this strcture, and specify id
         ///     {
-        ///         "createdAt": "2023-05-09T03:05:01.100Z",
         ///         "userId": 0,
         ///         "adminId": 0
         ///     }

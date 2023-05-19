@@ -121,6 +121,9 @@ namespace Event_manager_API.Migrations
                     b.Property<decimal>("TicketPrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("ticketsSold")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AdminId");

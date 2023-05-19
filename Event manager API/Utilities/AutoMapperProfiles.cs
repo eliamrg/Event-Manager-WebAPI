@@ -178,7 +178,7 @@ namespace Event_manager_API.Utilities
                     Id = record.Id,
                     Name = record.Name,
                     Date = record.Date,
-                    
+                    ticketsSold =record.ticketsSold
                 });
             }
             return result;
