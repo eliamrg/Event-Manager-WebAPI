@@ -26,6 +26,7 @@ namespace Event_manager_API.Entities
         [Required]
         public DateTime Date { get; set; }
 
+        public int ticketsSold { get; set; }
 
 
         //RELATIONSHIPS

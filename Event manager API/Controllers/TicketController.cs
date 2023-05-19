@@ -81,12 +81,13 @@ namespace Event_manager_API.Controllers
         {
             //Check Capacity
             var event_ = await dbContext.Event.FirstOrDefaultAsync(x => x.Id == ticketDTO.EventId);
-            var countTickets=await dbContext.Ticket.CountAsync();
+            var countTickets=await dbContext.Ticket.Where(x=>x.EventId==ticketDTO.EventId).CountAsync();
 
             if (event_.EventCapacity <= countTickets)
             {
                 return BadRequest("That Event is full");
             }
+            
 
             var userExists = await dbContext.User.AnyAsync(x => x.Id == ticketDTO.UserId);
             if (!userExists)
@@ -126,7 +127,10 @@ namespace Event_manager_API.Controllers
                 ticketPrice = event_.TicketPrice;
 
             }
-
+            
+            //ADD 1 TO TICKETS SOLD
+            event_.ticketsSold = countTickets + 1;
+            dbContext.Update(event_);
 
             var ticket = mapper.Map<Ticket>(ticketDTO);
             ticket.TicketPrice = ticketPrice;

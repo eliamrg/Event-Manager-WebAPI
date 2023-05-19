@@ -27,6 +27,7 @@ namespace Event_manager_API.DTOs.Set
 
 
 
+
         //RELATIONSHIPS
 
         //------User(Admin)

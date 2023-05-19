@@ -61,13 +61,13 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Get Location EventsList by Id.
         /// </summary>
-        [HttpGet("EventsList/{id:int}")]
-        public async Task<ActionResult<GetLocationDTOwithEvents>> GetByIdEventList(int id)
+        [HttpGet("EventsList/{LocationId:int}")]
+        public async Task<ActionResult<GetLocationDTOwithEvents>> GetByIdEventList(int LocationId)
         {
 
             var location = await dbContext.Location
                 .Include(DB => DB.EventsList)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == LocationId);
             return mapper.Map<GetLocationDTOwithEvents>(location);
         }
 

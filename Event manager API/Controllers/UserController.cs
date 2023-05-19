@@ -51,6 +51,11 @@ namespace Event_manager_API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<GetUserDTO>> GetById(int id)
         {
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == id);
+            if (!userExists)
+            {
+                return NotFound("That User does not exist");
+            }
             var user = await dbContext.User.Include(DB => DB.Account).FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<GetUserDTO>(user);
         }
@@ -58,62 +63,91 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Get User's Favourites by Id.
         /// </summary>
-        [HttpGet("Favourites/{id:int}")]
-        public async Task<ActionResult<GetUserDTOwithFavourites>> GetByIdListFavourites(int id)
+        [HttpGet("Favourites/{Userid:int}")]
+        public async Task<ActionResult<GetUserDTOwithFavourites>> GetByIdListFavourites(int Userid)
         {
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == Userid);
+            if (!userExists)
+            {
+                return BadRequest("That User does not exist");
+            }
             var object_ = await dbContext.User
                 .Include(DB => DB.Favourites)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == Userid);
             return mapper.Map<GetUserDTOwithFavourites>(object_);
         }
 
         /// <summary>
         /// Get User's Followers by Id.
         /// </summary>
-        [HttpGet("Followers/{id:int}")]
-        public async Task<ActionResult<GetUserDTOwithFollowers>> GetByIdListFollowers(int id)
+        [HttpGet("Followers/{Userid:int}")]
+        public async Task<ActionResult<GetUserDTOwithFollowers>> GetByIdListFollowers(int Userid)
         {
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == Userid);
+            if (!userExists)
+            {
+                return BadRequest("That User does not exist");
+            }
             var object_ = await dbContext.User
                 .Include(DB => DB.Followers)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == Userid);
             return mapper.Map<GetUserDTOwithFollowers>(object_);
         }
 
         /// <summary>
         /// Get User's Following by Id.
         /// </summary>
-        [HttpGet("Following/{id:int}")]
-        public async Task<ActionResult<GetUserDTOwithFollowing>> GetByIdListFollowing(int id)
+        [HttpGet("Following/{Userid:int}")]
+        public async Task<ActionResult<GetUserDTOwithFollowing>> GetByIdListFollowing(int Userid)
         {
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == Userid);
+            if (!userExists)
+            {
+                return BadRequest("That User does not exist");
+            }
             var object_ = await dbContext.User
                 .Include(DB => DB.Following)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == Userid);
             return mapper.Map<GetUserDTOwithFollowing>(object_);
         }
 
         /// <summary>
         /// Get User's Form Responses by Id.
         /// </summary>
-        [HttpGet("Forms/{id:int}")]
-        public async Task<ActionResult<GetUserDTOwithForms>> GetByIdListForms(int id)
+        [HttpGet("Forms/{Userid:int}")]
+        public async Task<ActionResult<GetUserDTOwithForms>> GetByIdListForms(int Userid)
         {
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == Userid);
+            if (!userExists)
+            {
+                return BadRequest("That User does not exist");
+            }
             var object_ = await dbContext.User
                 .Include(DB => DB.FormResponses)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == Userid);
             return mapper.Map<GetUserDTOwithForms>(object_);
         }
 
         /// <summary>
-        /// Get User's Tickets by Id.
+        /// Get User's Tickets/Events by Id.
         /// </summary>
-        [HttpGet("Tickets/{id:int}")]
-        public async Task<ActionResult<GetUserDTOwithTickets>> GetByIdListTickets(int id)
+        [HttpGet("Tickets/{Userid:int}")]
+        public async Task<ActionResult<GetUserDTOwithTickets>> GetByIdListTickets(int Userid)
         {
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == Userid);
+            if (!userExists)
+            {
+                return BadRequest("That User does not exist");
+            }
             var object_ = await dbContext.User
                 .Include(DB => DB.Tickets)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .ThenInclude(x => x.Event)
+                .FirstOrDefaultAsync(x => x.Id == Userid);
             return mapper.Map<GetUserDTOwithTickets>(object_);
         }
+
+
+       
 
 
 
@@ -127,10 +161,10 @@ namespace Event_manager_API.Controllers
         ///
         /// </remarks>
 
-        [HttpPatch("ChangeUserName/{id:int}/{UserName}")]
-        public async Task<ActionResult> UpdateUserName([FromRoute]string UserName, [FromRoute] int id)
+        [HttpPatch("ChangeUserName/{Userid:int}/{UserName}")]
+        public async Task<ActionResult> UpdateUserName([FromRoute]string UserName, [FromRoute] int Userid)
         {
-            var exists = await dbContext.User.AnyAsync(x => x.Id == id);
+            var exists = await dbContext.User.AnyAsync(x => x.Id == Userid);
             if (!exists)
             {
                 return NotFound("Does not exist");
@@ -139,9 +173,9 @@ namespace Event_manager_API.Controllers
             {
                 return BadRequest();
             }
-            var userDTO = await dbContext.User.FirstOrDefaultAsync(x => x.Id == id);
+            var userDTO = await dbContext.User.FirstOrDefaultAsync(x => x.Id == Userid);
             var user = mapper.Map<ApplicationUser>(userDTO);
-            user.Id = id;
+            user.Id = Userid;
             user.Username=UserName;
             dbContext.Update(user);
             await dbContext.SaveChangesAsync();

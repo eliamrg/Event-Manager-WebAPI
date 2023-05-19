@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Event_manager_API.Migrations
 {
     /// <inheritdoc />
-    public partial class FinalMigration : Migration
+    public partial class eventManagerMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -207,6 +207,7 @@ namespace Event_manager_API.Migrations
                     TicketPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     EventCapacity = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ticketsSold = table.Column<int>(type: "int", nullable: false),
                     AdminId = table.Column<int>(type: "int", nullable: false),
                     LocationId = table.Column<int>(type: "int", nullable: false)
                 },

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Event_manager_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230518055749_FinalMigration")]
-    partial class FinalMigration
+    [Migration("20230519214636_eventManagerMigration")]
+    partial class eventManagerMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -123,6 +123,9 @@ namespace Event_manager_API.Migrations
 
                     b.Property<decimal>("TicketPrice")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ticketsSold")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

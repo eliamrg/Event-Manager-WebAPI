@@ -19,6 +19,7 @@ namespace Event_manager_API.DTOs.Get
         [Required]
         public int LocationId { get; set; }
         public GetSimpleLocationDTO Location { get; set; }
+        public int ticketsSold { get; set; }
 
     }
 }
