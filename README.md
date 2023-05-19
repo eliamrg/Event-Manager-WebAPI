@@ -3,29 +3,18 @@
 
 ## Main Functions
 
-Allow users to create events, specifying the name, description, date and time, location, and maximum attendee capacity.
-
-Display a list of all created events, with basic information like name, date, and location, so users can browse them and decide which one to attend.
-
-Allow users to register for a particular event, keeping track of the attendees and the number of places available.
-
-Display a form for users to submit questions or comments to the event organizer.
-
-Allow the event organizer to edit event details at any time.
-
-Send automatic reminders to registered users for an event, a few days before the scheduled date.
-
-Allow users to search for events by name, date, or location.
-
-Allow users to follow a particular organizer to receive updates on their upcoming events.
-
-Show a list of popular or featured events so users can discover new events of interest to them.
-
-Allow users to bookmark events so they can be easily accessed later.
-
-Keep track of events a user has attended in the past, along with their registration and attendance history.
-
-Allow organizers to create discounts or promotions for a particular event, and send promotional codes to registered users.
+* Allow users to create events, specifying the name, description, date and time, location, and maximum attendee capacity.
+* Display a list of all created events, with basic information like name, date, and location, so users can browse them and decide which one to attend.
+* Allow users to register for a particular event, keeping track of the attendees and the number of places available.
+* Display a form for users to submit questions or comments to the event organizer.
+* Allow the event organizer to edit event details at any time.
+* Send automatic reminders to registered users for an event, a few days before the scheduled date.
+* Allow users to search for events by name, date, or location.
+* Allow users to follow a particular organizer to receive updates on their upcoming events.
+* Show a list of popular or featured events so users can discover new events of interest to them.
+* Allow users to bookmark events so they can be easily accessed later.
+* Keep track of events a user has attended in the past, along with their registration and attendance history.
+* Allow organizers to create discounts or promotions for a particular event, and send promotional codes to registered users.
 
 # API Reference
 ## Account
