@@ -99,7 +99,7 @@ namespace Event_manager_API.Controllers
             favourite.CreatedAt = DateTime.Now;
             dbContext.Add(favourite);
             await dbContext.SaveChangesAsync();
-            return Ok();
+            return Ok("Favourite Added");
         }
 
 
