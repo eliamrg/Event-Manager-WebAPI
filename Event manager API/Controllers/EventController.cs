@@ -48,6 +48,7 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Get Event by Id.
         /// </summary>
+        
         [HttpGet("{id:int}")]
         public async Task<ActionResult<GetEventDTO>> GetById(int id)
         {
@@ -71,10 +72,17 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Get Event by Date.
         /// </summary>
+        /// <remarks>
+        /// Use Format: AAAA-MM-DD
+        /// </remarks>
         [HttpGet("Date/{date}")]
-        public async Task<ActionResult<List<GetEventDTO>>> GetByDate([FromHeader]DateTime date)
+        public async Task<ActionResult<List<GetEventDTO>>> GetByDate(string date)
         {
-            var event_ = await dbContext.Event.Where(x => x.Date == date).Include(db => db.Admin).Include(db => db.Location).ToListAsync();
+            var parsedDate = DateTime.Parse(date);
+
+            var StartOfDay = new DateTime(parsedDate.Year, parsedDate.Month, parsedDate.Day, 0, 0, 1);
+            var FinalOfDay = new DateTime(parsedDate.Year, parsedDate.Month, parsedDate.Day, 23, 59, 59);
+            var event_ = await dbContext.Event.Where(x => x.Date >StartOfDay && x.Date<FinalOfDay).Include(db => db.Admin).Include(db => db.Location).ToListAsync();
             return mapper.Map<List<GetEventDTO>>(event_);
         }
 

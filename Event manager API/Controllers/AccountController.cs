@@ -202,22 +202,15 @@ namespace Event_manager_API.Controllers
         /// <summary>
         /// Renew Token.
         /// </summary>
-        /// <remarks>
-        /// Sample request:
-        ///
-        ///     Follow this strcture
-        ///     {
-        ///         "email": "user@example.com",
-        ///     }
-        ///
-        /// </remarks>
-        [HttpGet("RenewToken")]
-        
-        public async Task<ActionResult<AuthenticationResponse>> RenewToken(EditAdmin editAdmin)
+    
+        [HttpPost("RenewToken")]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
+        public async Task<ActionResult<AuthenticationResponse>> RenewToken(EditAdmin user)
         {
 
-            var emailClaim = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
-            var email = emailClaim.Value;
+            var emailClaim =await userManager.FindByNameAsync(user.Email);
+            var email = emailClaim.Email;
 
             var credentials = new UserCredentials()
             {
