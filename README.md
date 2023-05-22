@@ -54,6 +54,34 @@
 
 
 ## Coupon
+
+#### Add Coupon
+
+```http
+  POST /Coupon
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `Description`      | `string` | **Required**. Coupon Description|
+| `Code`      | `string` | **Required**. Coupon Code |
+| `DiscountPercentage`      | `int` | **Required**. Discount Percentage 0%-100% |
+| `EventId`      | `int` | **Required**. Relationship to Event |
+
+
+#### Update Coupon
+
+```http
+  PUT /Coupon/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `Description`      | `string` | **Required**. Coupon Description|
+| `Code`      | `string` | **Required**. Coupon Code |
+| `DiscountPercentage`      | `int` | **Required**. Discount Percentage 0%-100% |
+| `EventId`      | `int` | **Required**. Relationship to Event |
+
 #### Get all Coupons
 
 ```http
@@ -71,29 +99,6 @@
 | `id`      | `int` | **Required**. Id of item to fetch |
 
 
-#### Update Coupon
-
-```http
-  PUT /Coupon/${id}
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `Description`      | `string` | **Required**. Coupon Description|
-| `Code`      | `string` | **Required**. Coupon Code |
-| `DiscountPercentage`      | `int` | **Required**. Discount Percentage 0%-100% |
-| `EventId`      | `int` | **Required**. Relationship to Event |
-
-
-#### Delete Coupon
-
-```http
-  DELETE /Coupon/${id}
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `id`      | `int` | **Required**. Id of item to fetch |
 
 #### Get list of tickets using a Coupon
 
@@ -108,7 +113,7 @@
 #### Get coupon by Code
 
 ```http
-  GET /Coupon/UseCoupon/${code}
+  GET /Coupon/Code/${code}
 ```
 
 | Parameter | Type     | Description                       |
@@ -116,37 +121,34 @@
 | `code`      | `string` | **Required**. Code of coupon to fetch |
 
 
-#### Add Coupon
+#### Delete Coupon
 
 ```http
-  POST /Coupon
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `Description`      | `string` | **Required**. Coupon Description|
-| `Code`      | `string` | **Required**. Coupon Code |
-| `DiscountPercentage`      | `int` | **Required**. Discount Percentage 0%-100% |
-| `EventId`      | `int` | **Required**. Relationship to Event |
-
-## Event
-
-#### Get all Event
-
-```http
-  GET /Event/GetAll
-```
-
-#### Get Event
-
-```http
-  GET /Event/${id}
+  DELETE /Coupon/${id}
 ```
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
 | `id`      | `int` | **Required**. Id of item to fetch |
 
+
+## Event
+
+#### Add Event
+
+```http
+  POST /Event
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `Name`      | `string` | **Required**. Event Name|
+| `Description`      | `string` | **Required**. Event Description|
+| `TicketPrice`      | `decimal` | **Required**. Ticket Price|
+| `EventCapacity`      | `int` | **Required**. Event Capacity|
+| `date`      | `DateTime` | **Required**. Event Date |
+| `AdminId`      | `int` | **Required**. Event Administrator |
+| `LocationId`      | `int` | **Required**. Event Location |
 
 #### Update Event
 
@@ -164,11 +166,16 @@
 | `AdminId`      | `int` | **Required**. Event Administrator |
 | `LocationId`      | `int` | **Required**. Event Location |
 
-
-#### Delete Event
+#### Get all Event
 
 ```http
-  DELETE /Event/${id}
+  GET /Event/GetAll
+```
+
+#### Get Event
+
+```http
+  GET /Event/${id}
 ```
 
 | Parameter | Type     | Description                       |
@@ -245,24 +252,43 @@
   GET /Event/Popular
 ```
 
-#### Add Event
+#### Delete Event
 
 ```http
-  POST /Event
+  DELETE /Event/${id}
 ```
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `Name`      | `string` | **Required**. Event Name|
-| `Description`      | `string` | **Required**. Event Description|
-| `TicketPrice`      | `decimal` | **Required**. Ticket Price|
-| `EventCapacity`      | `int` | **Required**. Event Capacity|
-| `date`      | `DateTime` | **Required**. Event Date |
-| `AdminId`      | `int` | **Required**. Event Administrator |
-| `LocationId`      | `int` | **Required**. Event Location |
+| `id`      | `int` | **Required**. Id of item to fetch |
+
 
 
 ## Favourite
+
+#### Add Favourite
+
+```http
+  POST /Favourite
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userId`      | `int` | **Required**. User's Id|
+| `eventId`      | `int` | **Required**. Event's Id |
+
+#### Update Favourite
+
+```http
+  PUT /Favourite/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userId`      | `int` | **Required**. User's Id|
+| `eventId`      | `int` | **Required**. Event's Id |
+
+
 #### Get all Users Favourites
 
 ```http
@@ -280,19 +306,6 @@
 | `id`      | `int` | **Required**. Id of item to fetch |
 
 
-#### Update Favourite
-
-```http
-  PUT /Favourite/${id}
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `userId`      | `int` | **Required**. User's Id|
-| `eventId`      | `int` | **Required**. Event's Id |
-
-
-
 #### Delete Favourite
 
 ```http
@@ -305,6 +318,8 @@
 
 
 
+## Follow
+
 
 #### Add Favourite
 
@@ -315,12 +330,22 @@
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
 | `userId`      | `int` | **Required**. User's Id|
-| `eventId`      | `int` | **Required**. Event's Id |
+| `adminId`      | `int` | **Required**. Administrator's Id |
 
 
 
+#### Update Follow
 
-## Follow
+```http
+  PUT /Follow/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userId`      | `int` | **Required**. User's Id|
+| `adminId`      | `int` | **Required**. Administrator's Id |
+
+
 #### Get all Users Follows
 
 ```http
@@ -338,18 +363,6 @@
 | `id`      | `int` | **Required**. Id of item to fetch |
 
 
-#### Update Follow
-
-```http
-  PUT /Follow/${id}
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `userId`      | `int` | **Required**. User's Id|
-| `adminId`      | `int` | **Required**. Administrator's Id |
-
-
 
 #### Delete Favourite
 
@@ -364,21 +377,33 @@
 
 
 
-#### Add Favourite
+## Form
+#### Add Form
 
 ```http
-  POST /Favourite
+  POST /Form
+```
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `comment`      | `string` | **Required**. Form Response|
+| `userId`      | `int` | **Required**. User Id |
+| `eventId`      | `int` | **Required**. Event Id |
+
+
+#### Update Form
+
+```http
+  PUT /Form/${id}
 ```
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `userId`      | `int` | **Required**. User's Id|
-| `adminId`      | `int` | **Required**. Administrator's Id |
+| `comment`      | `string` | **Required**. Form Response|
+| `userId`      | `int` | **Required**. User Id |
+| `eventId`      | `int` | **Required**. Event Id |
 
 
 
-
-## Form
 #### Get all Form Responses
 
 ```http
@@ -396,18 +421,6 @@
 | `id`      | `string` | **Required**. Id of item to fetch |
 
 
-#### Update Form
-
-```http
-  PUT /Form/${id}
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `comment`      | `string` | **Required**. Form Response|
-| `userId`      | `int` | **Required**. User Id |
-| `eventId`      | `int` | **Required**. Event Id |
-
 
 
 #### Delete Form
@@ -422,24 +435,34 @@
 
 
 
+## Location
 
-#### Add Form
+#### Add Location
 
 ```http
-  POST /Form
+  POST /Location
 ```
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `comment`      | `string` | **Required**. Form Response|
-| `userId`      | `int` | **Required**. User Id |
-| `eventId`      | `int` | **Required**. Event Id |
+| `name`      | `string` | **Required**. Location Name|
+| `address`      | `int` | **Required**. Location address|
+| `capacity`      | `int` | **Required**. Location capacity |
+
+
+#### Update Location
+
+```http
+  PUT /Location/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `name`      | `string` | **Required**. Location Name|
+| `address`      | `int` | **Required**. Location address|
+| `capacity`      | `int` | **Required**. Location capacity |
 
 
 
-
-
-
-## Location
 #### Get all Locations
 
 ```http
@@ -457,19 +480,6 @@
 | `id`      | `int` | **Required**. Id of item to fetch |
 
 
-#### Update Location
-
-```http
-  PUT /Location/${id}
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `name`      | `string` | **Required**. Location Name|
-| `address`      | `int` | **Required**. Location address|
-| `capacity`      | `int` | **Required**. Location capacity |
-
-
 
 #### Delete Location
 
@@ -484,21 +494,32 @@
 
 
 
-#### Add Location
+## Ticket
+
+#### Add Ticket
 
 ```http
-  POST /Location
+  POST /Ticket
 ```
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `name`      | `string` | **Required**. Location Name|
-| `address`      | `int` | **Required**. Location address|
-| `capacity`      | `int` | **Required**. Location capacity |
+| `userId`      | `int` | **Required**. Relationship to User|
+| `eventId`      | `int` | **Required**. Relationship to Event|
+| `couponCode`      | `int` | CouponCode |
+
+#### Update Ticket
+
+```http
+  PUT /Ticket/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userId`      | `int` | **Required**. Relationship to User|
+| `eventId`      | `int` | **Required**. Relationship to Event|
+| `couponCode`      | `int` | CouponCode |
 
 
-
-
-## Ticket
 #### Get all Tickets
 
 ```http
@@ -516,17 +537,6 @@
 | `id`      | `int` | **Required**. Id of item to fetch |
 
 
-#### Update Ticket
-
-```http
-  PUT /Ticket/${id}
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `userId`      | `int` | **Required**. Relationship to User|
-| `eventId`      | `int` | **Required**. Relationship to Event|
-| `couponId`      | `int` | **Required**. Coupon Id. (0:No Coupon) |
 
 
 
@@ -543,19 +553,6 @@
 
 
 
-#### Add Ticket
-
-```http
-  POST /Ticket
-```
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `userId`      | `int` | **Required**. Relationship to User|
-| `eventId`      | `int` | **Required**. Relationship to Event|
-| `couponId`      | `int` | **Required**. Coupon Id. (0:No Coupon) |
-
-
-
 ## Upcoming Events
 #### Get User´s upcoming Events (30 days)
 
@@ -569,6 +566,10 @@
 
 
 ## User
+#### Add User
+
+A user is created when an account is registered
+
 #### Get all Users
 
 
@@ -653,6 +654,4 @@
 | `id`      | `int` | **Required**. Id of item to fetch |
 | `UserName`      | `string` | **Required**. New UserName |
 
-#### Add User
 
-A user is created when an account is registered
