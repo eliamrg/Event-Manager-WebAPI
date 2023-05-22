@@ -27,31 +27,6 @@ namespace Event_manager_API.Controllers
             this.mapper = mapper;
         }
 
-        //GET ALL--------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Get a list of Follows.
-        /// </summary>
-        [HttpGet("GetAll")]
-        public async Task<ActionResult<List<GetFollowDTO>>> GetAll()
-        {
-            logger.LogInformation("Getting Follow List");
-            var follow = await dbContext.Follow.Include(x=>x.Admin).Include(x => x.User).ToListAsync();
-            return mapper.Map<List<GetFollowDTO>>(follow);
-        }
-
-        //GET BY ID-------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Get Follow by Id.
-        /// </summary>
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<GetFollowDTO>> GetById(int id)
-        {
-            var follow = await dbContext.Follow.Include(x => x.Admin).Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
-            return mapper.Map<GetFollowDTO>(follow);
-        }
-
 
         //POST---------------------------------------------------------------------------------------
 
@@ -74,7 +49,7 @@ namespace Event_manager_API.Controllers
 
         public async Task<ActionResult> Post([FromBody] FollowDTO followDTO)
         {
-            
+
             var userExists = await dbContext.User.AnyAsync(x => x.Id == followDTO.UserId);
             if (!userExists)
             {
@@ -134,6 +109,34 @@ namespace Event_manager_API.Controllers
             await dbContext.SaveChangesAsync();
             return Ok();
         }
+
+        //GET ALL--------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get a list of Follows.
+        /// </summary>
+        [HttpGet("GetAll")]
+        public async Task<ActionResult<List<GetFollowDTO>>> GetAll()
+        {
+            logger.LogInformation("Getting Follow List");
+            var follow = await dbContext.Follow.Include(x=>x.Admin).Include(x => x.User).ToListAsync();
+            return mapper.Map<List<GetFollowDTO>>(follow);
+        }
+
+        //GET BY ID-------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get Follow by Id.
+        /// </summary>
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<GetFollowDTO>> GetById(int id)
+        {
+            var follow = await dbContext.Follow.Include(x => x.Admin).Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetFollowDTO>(follow);
+        }
+
+
+        
 
         // DELETE-----------------------------------------------------------------------------------------------------------
 

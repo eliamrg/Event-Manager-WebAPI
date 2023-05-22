@@ -30,49 +30,6 @@ namespace Event_manager_API.Controllers
             this.mapper = mapper;
         }
 
-        //GET ALL--------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Get a list of Locations.
-        /// </summary>
-        [HttpGet("GetAll")]
-        public async Task<ActionResult<List<GetLocationDTO>>> GetAll()
-        {
-            logger.LogInformation("Getting Location List");
-            var location = await dbContext.Location.ToListAsync();
-            return mapper.Map<List<GetLocationDTO>>(location);
-        }
-
-        //GET BY ID-------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Get Location by Id.
-        /// </summary>
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<GetLocationDTO>> GetById(int id)
-        {
-            
-            var location = await dbContext.Location.FirstOrDefaultAsync(x => x.Id == id);
-            return mapper.Map<GetLocationDTO>(location);
-        }
-
-        //GET BY ID WITH EVENTLIST-------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Get Location EventsList by Id.
-        /// </summary>
-        [HttpGet("EventsList/{LocationId:int}")]
-        public async Task<ActionResult<GetLocationDTOwithEvents>> GetByIdEventList(int LocationId)
-        {
-
-            var location = await dbContext.Location
-                .Include(DB => DB.EventsList)
-                .FirstOrDefaultAsync(x => x.Id == LocationId);
-            return mapper.Map<GetLocationDTOwithEvents>(location);
-        }
-
-
-
         //POST---------------------------------------------------------------------------------------
 
         /// <summary>
@@ -137,6 +94,51 @@ namespace Event_manager_API.Controllers
             await dbContext.SaveChangesAsync();
             return Ok();
         }
+
+        //GET ALL--------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get a list of Locations.
+        /// </summary>
+        [HttpGet("GetAll")]
+        public async Task<ActionResult<List<GetLocationDTO>>> GetAll()
+        {
+            logger.LogInformation("Getting Location List");
+            var location = await dbContext.Location.ToListAsync();
+            return mapper.Map<List<GetLocationDTO>>(location);
+        }
+
+        //GET BY ID-------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get Location by Id.
+        /// </summary>
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<GetLocationDTO>> GetById(int id)
+        {
+            
+            var location = await dbContext.Location.FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetLocationDTO>(location);
+        }
+
+        //GET BY ID WITH EVENTLIST-------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get Location EventsList by Id.
+        /// </summary>
+        [HttpGet("EventsList/{LocationId:int}")]
+        public async Task<ActionResult<GetLocationDTOwithEvents>> GetByIdEventList(int LocationId)
+        {
+
+            var location = await dbContext.Location
+                .Include(DB => DB.EventsList)
+                .FirstOrDefaultAsync(x => x.Id == LocationId);
+            return mapper.Map<GetLocationDTOwithEvents>(location);
+        }
+
+
+
+        
 
         // DELETE-----------------------------------------------------------------------------------------------------------
 

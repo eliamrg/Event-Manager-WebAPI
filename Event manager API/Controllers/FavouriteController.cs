@@ -30,35 +30,6 @@ namespace Event_manager_API.Controllers
             this.mapper = mapper;
         }
 
-        //GET ALL--------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Get a list of Favourites.
-        /// </summary>
-        
-        [HttpGet("GetAll")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<List<GetFavouriteDTO>>> GetAll()
-        {
-            logger.LogInformation("Getting Favourite List");
-            var favourite = await dbContext.Favourite.Include(x=>x.User).Include(x=>x.Event).ThenInclude(x => x.Location).ToListAsync();
-            return mapper.Map<List<GetFavouriteDTO>>(favourite);
-        }
-
-        //GET BY ID-------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Get Favourite by Id.
-        /// </summary>
-        
-        [HttpGet("{id:int}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<GetFavouriteDTO>> GetById(int id)
-        {
-            var favourite = await dbContext.Favourite.Include(x => x.User).Include(x => x.Event).ThenInclude(x => x.Location).FirstOrDefaultAsync(x => x.Id == id);
-            return mapper.Map<GetFavouriteDTO>(favourite);
-        }
-
 
         //POST---------------------------------------------------------------------------------------
 
@@ -81,8 +52,8 @@ namespace Event_manager_API.Controllers
 
         public async Task<ActionResult> Post([FromBody] FavouriteDTO favouriteDTO)
         {
-            
-            
+
+
             var userExists = await dbContext.User.AnyAsync(x => x.Id == favouriteDTO.UserId);
             if (!userExists)
             {
@@ -149,6 +120,38 @@ namespace Event_manager_API.Controllers
             await dbContext.SaveChangesAsync();
             return Ok();
         }
+
+        //GET ALL--------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get a list of Favourites.
+        /// </summary>
+
+        [HttpGet("GetAll")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<List<GetFavouriteDTO>>> GetAll()
+        {
+            logger.LogInformation("Getting Favourite List");
+            var favourite = await dbContext.Favourite.Include(x=>x.User).Include(x=>x.Event).ThenInclude(x => x.Location).ToListAsync();
+            return mapper.Map<List<GetFavouriteDTO>>(favourite);
+        }
+
+        //GET BY ID-------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get Favourite by Id.
+        /// </summary>
+        
+        [HttpGet("{id:int}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<GetFavouriteDTO>> GetById(int id)
+        {
+            var favourite = await dbContext.Favourite.Include(x => x.User).Include(x => x.Event).ThenInclude(x => x.Location).FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetFavouriteDTO>(favourite);
+        }
+
+
+        
 
         // DELETE-----------------------------------------------------------------------------------------------------------
 

@@ -22,7 +22,7 @@ namespace Event_manager_API.DTOs.Set
         
         
         //------Coupon
-        public int CouponId { get; set; }
+        //public int CouponId { get; set; }
         
     }
 }
