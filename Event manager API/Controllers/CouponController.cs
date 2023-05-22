@@ -31,91 +31,30 @@ namespace Event_manager_API.Controllers
             this.mapper = mapper;
         }
 
-        //GET ALL--------------------------------------------------------------------------------
+
+        //POST---------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Get a list of Coupons.
+        /// Add a Coupon.
         /// </summary>
-        [HttpGet("GetAll")]
-        public async Task<ActionResult<List<GetCouponDTO>>> GetAll()
-        {
-            logger.LogInformation("Getting Coupon List");
-            var coupon = await dbContext.Coupon.Include(x=>x.Event).ThenInclude(x=>x.Location).ToListAsync();
-            return mapper.Map<List<GetCouponDTO>>(coupon);
-        }
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     To add a new coupon follow this strcture
+        ///     {
+        ///         "description": "string",
+        ///         "code": "string",
+        ///         "discountPercentage": 0,
+        ///         "eventId": 0
+        ///     }
+        ///
+        /// </remarks>
 
-        //GET BY ID-------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Get Coupon by Id.
-        /// </summary>
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<GetCouponDTO>> GetById(int id)
-        {
-            var coupon = await dbContext.Coupon.Include(x => x.Event).ThenInclude(x => x.Location).FirstOrDefaultAsync(x => x.Id == id);
-            return mapper.Map<GetCouponDTO>(coupon);
-        }
-
-        //GET BY ID WITH TICKETS-------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Get Coupon and Tickets list by Id.
-        /// </summary>
-        [HttpGet("Tickets/{CouponId:int}")]
-        public async Task<ActionResult<GetCouponDTOwithTickets>> GetByIdList(int CouponId)
-        {
-
-            var object_ = await dbContext.Coupon
-                .Include(DB => DB.Tickets)
-                .Include(x => x.Event)
-                .FirstOrDefaultAsync(x => x.Id == CouponId);
-            return mapper.Map<GetCouponDTOwithTickets>(object_);
-        }
-
-        //GET BY COUPON CODE-------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Get Coupon bt typin Coupon Code.
-        /// </summary>
-        
-        [HttpGet("UseCoupon/{code}")]
-        public async Task<ActionResult<GetSimpleCouponDTO>> GetBycode(string code)
-        {
-
-            var exists = await dbContext.Coupon.AnyAsync(x => x.Code == code);
-            if (!exists)
-            {
-                return NotFound("Does not exist");
-            }
-
-            var coupon = await dbContext.Coupon.FirstOrDefaultAsync(x => x.Code == code);
-            return mapper.Map<GetSimpleCouponDTO>(coupon);
-        }
-        
-
-    //POST---------------------------------------------------------------------------------------
-
-    /// <summary>
-    /// Add a Coupon.
-    /// </summary>
-    /// <remarks>
-    /// Sample request:
-    ///
-    ///     To add a new coupon follow this strcture
-    ///     {
-    ///         "description": "string",
-    ///         "code": "string",
-    ///         "discountPercentage": 0,
-    ///         "eventId": 0
-    ///     }
-    ///
-    /// </remarks>
-
-    [HttpPost]
+        [HttpPost]
 
         public async Task<ActionResult> Post([FromBody] CouponDTO couponDTO)
         {
-            
+
             var eventExists = await dbContext.Event.AnyAsync(x => x.Id == couponDTO.EventId);
             if (!eventExists)
             {
@@ -123,7 +62,7 @@ namespace Event_manager_API.Controllers
             }
 
             var coupon = mapper.Map<Coupon>(couponDTO);
-            coupon.CreatedAt= DateTime.Now;
+            coupon.CreatedAt = DateTime.Now;
             dbContext.Add(coupon);
             await dbContext.SaveChangesAsync();
             return Ok();
@@ -172,6 +111,70 @@ namespace Event_manager_API.Controllers
             return Ok();
         }
 
+
+        //GET ALL--------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get a list of Coupons.
+        /// </summary>
+        [HttpGet("GetAll")]
+        public async Task<ActionResult<List<GetCouponDTO>>> GetAll()
+        {
+            logger.LogInformation("Getting Coupon List");
+            var coupon = await dbContext.Coupon.Include(x=>x.Event).ThenInclude(x=>x.Location).ToListAsync();
+            return mapper.Map<List<GetCouponDTO>>(coupon);
+        }
+
+        //GET BY ID-------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get Coupon by Id.
+        /// </summary>
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<GetCouponDTO>> GetById(int id)
+        {
+            var coupon = await dbContext.Coupon.Include(x => x.Event).ThenInclude(x => x.Location).FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetCouponDTO>(coupon);
+        }
+
+        //GET BY ID WITH TICKETS-------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get Coupon and Tickets list by Id.
+        /// </summary>
+        [HttpGet("Tickets/{CouponId:int}")]
+        public async Task<ActionResult<GetCouponDTOwithTickets>> GetByIdList(int CouponId)
+        {
+
+            var object_ = await dbContext.Coupon
+                .Include(DB => DB.Tickets)
+                .Include(x => x.Event)
+                .FirstOrDefaultAsync(x => x.Id == CouponId);
+            return mapper.Map<GetCouponDTOwithTickets>(object_);
+        }
+
+        //GET BY COUPON CODE-------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get Coupon bt typin Coupon Code.
+        /// </summary>
+        
+        [HttpGet("Code/{code}")]
+        public async Task<ActionResult<GetSimpleCouponDTO>> GetBycode(string code)
+        {
+
+            var exists = await dbContext.Coupon.AnyAsync(x => x.Code == code);
+            if (!exists)
+            {
+                return NotFound("Does not exist");
+            }
+
+            var coupon = await dbContext.Coupon.FirstOrDefaultAsync(x => x.Code == code);
+            return mapper.Map<GetSimpleCouponDTO>(coupon);
+        }
+        
+
+    
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>

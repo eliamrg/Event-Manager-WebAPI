@@ -29,36 +29,6 @@ namespace Event_manager_API.Controllers
             this.mapper = mapper;
         }
 
-        //GET ALL--------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Get a list of Forms.
-        /// </summary>
-        
-        [HttpGet("GetAll")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<List<GetFormDTO>>> GetAll()
-        {
-            logger.LogInformation("Getting Form List");
-            var form = await dbContext.Form.Include(x=>x.Event).ThenInclude(x => x.Location).Include(x => x.User).ToListAsync();
-            return mapper.Map<List<GetFormDTO>>(form);
-        }
-
-        //GET BY ID-------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Get Form by Id.
-        /// </summary>
-        
-        [HttpGet("{id:int}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<GetFormDTO>> GetById(int id)
-        {
-            var form = await dbContext.Form.Include(x => x.Event).ThenInclude(x => x.Location).Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
-            return mapper.Map<GetFormDTO>(form);
-        }
-
-
         //POST---------------------------------------------------------------------------------------
 
         /// <summary>
@@ -81,7 +51,7 @@ namespace Event_manager_API.Controllers
 
         public async Task<ActionResult> Post([FromBody] FormDTO formDTO)
         {
-            var userExists = await dbContext.User.AnyAsync(x => x.Id == formDTO.UserId );
+            var userExists = await dbContext.User.AnyAsync(x => x.Id == formDTO.UserId);
             if (!userExists)
             {
                 return BadRequest("That User does not exist");
@@ -150,6 +120,38 @@ namespace Event_manager_API.Controllers
             return Ok();
         }
 
+
+        //GET ALL--------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get a list of Forms.
+        /// </summary>
+
+        [HttpGet("GetAll")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<List<GetFormDTO>>> GetAll()
+        {
+            logger.LogInformation("Getting Form List");
+            var form = await dbContext.Form.Include(x=>x.Event).ThenInclude(x => x.Location).Include(x => x.User).ToListAsync();
+            return mapper.Map<List<GetFormDTO>>(form);
+        }
+
+        //GET BY ID-------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Get Form by Id.
+        /// </summary>
+        
+        [HttpGet("{id:int}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<GetFormDTO>> GetById(int id)
+        {
+            var form = await dbContext.Form.Include(x => x.Event).ThenInclude(x => x.Location).Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<GetFormDTO>(form);
+        }
+
+
+        
         // DELETE-----------------------------------------------------------------------------------------------------------
 
         /// <summary>

@@ -30,6 +30,131 @@ namespace Event_manager_API.Controllers
             this.mapper = mapper;
         }
 
+        //POST---------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Add a Event.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     To add a new event_ follow this strcture
+        ///     {
+        ///         "name": "string",
+        ///         "description": "string",
+        ///         "ticketPrice": 0,
+        ///         "eventCapacity": 0,
+        ///         "date": "2023-05-09T02:48:00.083Z",
+        ///         "adminId": 0,
+        ///         "locationId": 0
+        ///     }
+        ///
+        /// USE USER ID, NOT ACCOUNT ID
+        /// </remarks>
+
+        [HttpPost]
+
+        public async Task<ActionResult> Post([FromBody] EventDTO event_DTO)
+        {
+
+
+            var adminExists = await dbContext.User.AnyAsync(x => (x.Id == event_DTO.AdminId && x.Role == "admin"));
+            if (!adminExists)
+            {
+                return BadRequest("That Administrator does not exist");
+            }
+
+            var locationExists = await dbContext.Location.AnyAsync(x => x.Id == event_DTO.LocationId);
+            if (!locationExists)
+            {
+                return BadRequest("That Location does not exist");
+            }
+
+
+            var StartOfDay = new DateTime(event_DTO.Date.Year, event_DTO.Date.Month, event_DTO.Date.Day, 0, 0, 1);
+            var FinalOfDay = new DateTime(event_DTO.Date.Year, event_DTO.Date.Month, event_DTO.Date.Day, 23, 59, 59);
+            var DateOcuped = await dbContext.Event.AnyAsync(x => x.Date > StartOfDay && x.Date < FinalOfDay && x.LocationId == event_DTO.LocationId);
+            if (DateOcuped)
+            {
+                return BadRequest("That Day is reserved for another event in that location");
+            }
+
+            var event_ = mapper.Map<Event>(event_DTO);
+            event_.CreatedAt = DateTime.Now;
+            event_.ticketsSold = 0;
+            dbContext.Add(event_);
+            await dbContext.SaveChangesAsync();
+
+            //Create coupon with no benefits
+
+            CouponDTO couponDTO = new CouponDTO();
+
+            couponDTO.Code = "NoCode";
+            couponDTO.EventId = event_.Id;
+            couponDTO.Description = "No Benefits";
+            couponDTO.DiscountPercentage = 0;
+            var coupon = mapper.Map<Coupon>(couponDTO);
+            coupon.CreatedAt = DateTime.Now;
+            dbContext.Add(coupon);
+            await dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
+
+        //UPDATE------------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Update Event.
+        /// </summary>
+        /// <returns>A newly created Event</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     To Update event_ follow this strcture, and specify id
+        ///     {
+        ///         "name": "string",
+        ///         "description": "string",
+        ///         "ticketPrice": 0,
+        ///         "eventCapacity": 0,
+        ///         "date": "2023-05-09T02:48:00.083Z",
+        ///         "adminId": 0,
+        ///         "locationId": 0
+        ///     }
+        ///
+        /// USE USER ID, NOT ACCOUNT ID
+        /// </remarks>
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> PutEvent(EventDTO event_DTO, [FromRoute] int id)
+        {
+            var exists = await dbContext.Event.AnyAsync(x => x.Id == id);
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            var adminExists = await dbContext.User.AnyAsync(x => (x.Id == event_DTO.AdminId && x.Role == "admin"));
+            if (!adminExists)
+            {
+                return BadRequest("That Administrator does not exist");
+            }
+
+            var locationExists = await dbContext.Location.AnyAsync(x => x.Id == event_DTO.LocationId);
+            if (!locationExists)
+            {
+                return BadRequest("That Location does not exist");
+            }
+
+            var event_ = mapper.Map<Event>(event_DTO);
+            event_.Id = id;
+            event_.CreatedAt = DateTime.Now;
+            dbContext.Update(event_);
+            await dbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+
         //GET ALL--------------------------------------------------------------------------------
 
         /// <summary>
@@ -162,120 +287,7 @@ namespace Event_manager_API.Controllers
             return mapper.Map<List<GetEventDTO>>(object_);
         }
 
-        //POST---------------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Add a Event.
-        /// </summary>
-        /// <remarks>
-        /// Sample request:
-        ///
-        ///     To add a new event_ follow this strcture
-        ///     {
-        ///         "name": "string",
-        ///         "description": "string",
-        ///         "ticketPrice": 0,
-        ///         "eventCapacity": 0,
-        ///         "date": "2023-05-09T02:48:00.083Z",
-        ///         "adminId": 0,
-        ///         "locationId": 0
-        ///     }
-        ///
-        /// USE USER ID, NOT ACCOUNT ID
-        /// </remarks>
-
-        [HttpPost]
-
-        public async Task<ActionResult> Post([FromBody] EventDTO event_DTO)
-        {
-            
-
-            var adminExists = await dbContext.User.AnyAsync(x => (x.Id == event_DTO.AdminId && x.Role=="admin"));
-            if (!adminExists)
-            {
-                return BadRequest("That Administrator does not exist");
-            }
-
-            var locationExists = await dbContext.Location.AnyAsync(x => x.Id == event_DTO.LocationId );
-            if (!locationExists)
-            {
-                return BadRequest("That Location does not exist");
-            }
-
-            var event_ = mapper.Map<Event>(event_DTO);
-            event_.CreatedAt = DateTime.Now;
-            event_.ticketsSold = 0;
-            dbContext.Add(event_);
-            await dbContext.SaveChangesAsync();
-
-            //Create coupon with no benefits
-
-            CouponDTO couponDTO = new CouponDTO();
-
-            couponDTO.Code = "NoCode";
-            couponDTO.EventId = event_.Id;
-            couponDTO.Description = "No Benefits";
-            couponDTO.DiscountPercentage = 0;  
-            var coupon = mapper.Map<Coupon>(couponDTO);
-            coupon.CreatedAt = DateTime.Now;
-            dbContext.Add(coupon);
-            await dbContext.SaveChangesAsync();
-
-            return Ok();
-        }
-
-
-        //UPDATE------------------------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Update Event.
-        /// </summary>
-        /// <returns>A newly created Event</returns>
-        /// <remarks>
-        /// Sample request:
-        ///
-        ///     To Update event_ follow this strcture, and specify id
-        ///     {
-        ///         "name": "string",
-        ///         "description": "string",
-        ///         "ticketPrice": 0,
-        ///         "eventCapacity": 0,
-        ///         "date": "2023-05-09T02:48:00.083Z",
-        ///         "adminId": 0,
-        ///         "locationId": 0
-        ///     }
-        ///
-        /// USE USER ID, NOT ACCOUNT ID
-        /// </remarks>
-
-        [HttpPut("{id:int}")]
-        public async Task<ActionResult> PutEvent(EventDTO event_DTO, [FromRoute] int id)
-        {
-            var exists = await dbContext.Event.AnyAsync(x => x.Id == id);
-            if (!exists)
-            {
-                return NotFound();
-            }
-
-            var adminExists = await dbContext.User.AnyAsync(x => (x.Id == event_DTO.AdminId && x.Role == "admin"));
-            if (!adminExists)
-            {
-                return BadRequest("That Administrator does not exist");
-            }
-
-            var locationExists = await dbContext.Location.AnyAsync(x => x.Id == event_DTO.LocationId);
-            if (!locationExists)
-            {
-                return BadRequest("That Location does not exist");
-            }
-
-            var event_ = mapper.Map<Event>(event_DTO);
-            event_.Id = id;
-            event_.CreatedAt = DateTime.Now;
-            dbContext.Update(event_);
-            await dbContext.SaveChangesAsync();
-            return Ok();
-        }
+        
 
         // DELETE-----------------------------------------------------------------------------------------------------------
 
