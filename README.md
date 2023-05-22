@@ -321,7 +321,7 @@
 ## Follow
 
 
-#### Add Favourite
+#### Add Follow
 
 ```http
   POST /Favourite
@@ -346,7 +346,7 @@
 | `adminId`      | `int` | **Required**. Administrator's Id |
 
 
-#### Get all Users Follows
+#### Get all Follows
 
 ```http
   GET /Follow/GetAll
@@ -364,7 +364,7 @@
 
 
 
-#### Delete Favourite
+#### Delete Follow
 
 ```http
   DELETE /Follow/${id}
@@ -484,7 +484,7 @@
 #### Delete Location
 
 ```http
-  DELETE /Form/${id}
+  DELETE /Location/${id}
 ```
 
 | Parameter | Type     | Description                       |
@@ -624,7 +624,7 @@ A user is created when an account is registered
 #### Get User Form Responses
 
 ```http
-  GET /User/Fomrs/${Userid}
+  GET /User/Forms/${Userid}
 ```
 
 | Parameter | Type     | Description                       |
