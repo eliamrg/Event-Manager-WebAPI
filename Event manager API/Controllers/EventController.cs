@@ -273,13 +273,14 @@ namespace Event_manager_API.Controllers
         {
 
             //FROM THE EVENTS CREATED ON THE LAST 30 DAYS SELECT THE 25 WITH MORE TICKETS SOLD
-            var date30days = DateTime.Now.AddDays(30);
+            var date30days = DateTime.Now.AddDays(-30);
             var today = DateTime.Now;
 
             var object_ = await dbContext.Event
                 .Include(DB => DB.FormResponses)
-                .Where(x => x.CreatedAt < date30days && x.CreatedAt > today)
-                .OrderBy(x=> x.ticketsSold)
+                .Where(x => x.CreatedAt > date30days && x.CreatedAt < today)
+                .Distinct()
+                .OrderByDescending(x=> x.ticketsSold)
                 .Take(25)
                 .ToListAsync();
 

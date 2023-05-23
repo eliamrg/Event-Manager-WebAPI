@@ -284,6 +284,7 @@ namespace Event_manager_API.Utilities
                     TicketPrice = record.TicketPrice,
                     UserId = record.UserId,
                     EventId = record.EventId,
+                    EventName=record.Event.Name,
                     CouponId = record.CouponId,
 
                 });
