@@ -57,7 +57,7 @@ namespace Event_manager_API.Controllers
                 return BadRequest("That User does not exist");
             }
 
-            var eventExists = await dbContext.Location.AnyAsync(x => x.Id == formDTO.EventId);
+            var eventExists = await dbContext.Event.AnyAsync(x => x.Id == formDTO.EventId);
             if (!eventExists)
             {
                 return BadRequest("That Event does not exist");
@@ -106,7 +106,7 @@ namespace Event_manager_API.Controllers
                 return BadRequest("That User does not exist");
             }
 
-            var eventExists = await dbContext.Location.AnyAsync(x => x.Id == formDTO.EventId);
+            var eventExists = await dbContext.Event.AnyAsync(x => x.Id == formDTO.EventId);
             if (!eventExists)
             {
                 return BadRequest("That Event does not exist");
